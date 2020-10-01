@@ -30,7 +30,7 @@ router.post("/", (req, res) => {
         var scanner = new Scanner(source_code);
         scanner.scan();
         res.send('Source code received');
-
+        scanner.ReturnTokens();
     } else {
         res.json({ error: 'An error has ocurred.' });
     }

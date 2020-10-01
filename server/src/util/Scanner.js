@@ -1,13 +1,43 @@
 
-//
+var Token = require('./Token');
+
 const TokenType = {
-    COMENT: 'commentary',
+    COMMENT: 'commentary',
+    CLASS: 'class',
+    STATIC: 'static',
+    PUBLIC: 'public',
+    VOID: 'void',
+    MAIN: 'main',
+    INTERFACE: 'interface',
+    NUMBER: 'number',
+    ID: 'Identifier',
+    POINT: 'point',
+    EQUAL: 'equal',
+    ASSIGNATION: 'asignation',
+    LEFT_PAR: 'Left parenthesis',
+    RIGHT_PAR: 'Right parenthesis',
+    SEMICOLON: 'Semicolon',
+    /*conditionals*/
+    IF: 'if',
+    ELSE: 'else',
+    /*cycles (repetition sentences)*/
+    FOR: 'for',
+    WHILE: 'while',
+    DO: 'do',
+    /* Sentences */
+    BREAK: 'break',
+    CONTINUE: 'continue',
+    RETURN: 'return',
+    /* Data types */
+    INT: 'int',
     STRING: 'string',
-    PR_CLASS: 'Pr_class',
-    PR_STATIC: 'Pr_static',
-    PR_VOID: 'Pr_void'
+    BOOLEAN: 'boolean',
+    FLOAT: 'float',
+    CHAR: 'char'
 
 }
+var tokenList = [];
+var errorList = [];
 
 // Scanner Java 
 module.exports = class Scanner {
@@ -23,7 +53,7 @@ module.exports = class Scanner {
         source_code = this.text;
         let current_char = '';
         let state = 0;
-        let tokenList = [];
+
 
         for (let i = 0; i < source_code.length; i++) {
             current_char = source_code.charAt(i);
@@ -34,26 +64,60 @@ module.exports = class Scanner {
 
             switch (state) {
                 case 0:
-                    console.log("I'm in state 0");
+                    //console.log("I'm in state 0");
 
                     if (this.isLetter(current_char)) {
                         //console.log("Is a letter -> ", current_char);
+                        auxiliar += current_char;
+                        state = 6;
                     }
                     else if (this.isNumber(current_char)) {
                         //console.log("Is a number -> ", current_char)
+                        auxiliar += current_char;
+                        state = 7;
                     }
                     else if (current_char === "/") {
                         auxiliar += current_char;
                         state = 1;
                     }
-                    else {
-                        //console.log("Is not a letter -> ", current_char);
+                    else if (current_char === "(") {
+                        auxiliar += current_char;
+                        tokenList.push(new Token(TokenType.LEFT_PAR, auxiliar));
+                        auxiliar = "";
+                        state = 0;
                     }
+                    else if (current_char === ")") {
+                        auxiliar += current_char;
+                        tokenList.push(new Token(TokenType.RIGHT_PAR, auxiliar));
+                        auxiliar = "";
+                        state = 0;
+                    }
+                    else if (current_char === ".") {
+                        auxiliar += current_char;
+                        tokenList.push(new Token(TokenType.POINT, auxiliar));
+                        auxiliar = "";
+                        state = 0;
+                    }
+                    else if (current_char === ";") {
+                        auxiliar += current_char;
+                        tokenList.push(new Token(TokenType.SEMICOLON, auxiliar));
+                        auxiliar = "";
+                        state = 0;
+                    }
+
+                    else if (current_char === "=") {
+                        auxiliar += current_char;
+                        tokenList.push(new Token(TokenType.ASSIGNATION, auxiliar));
+                        auxiliar = "";
+                        state = 0;
+                        //state = 9;
+                    }
+
 
                     break;
 
                 case 1:
-                    console.log("I'm in state 1");
+                    //console.log("I'm in state 1");
 
                     if (current_char === "/") {
                         auxiliar += current_char;
@@ -67,7 +131,7 @@ module.exports = class Scanner {
                     break;
 
                 case 2:
-                    console.log("I'm in state 2");
+                    //console.log("I'm in state 2");
                     if (this.isLetter(current_char)) {
                         auxiliar += current_char;
                     }
@@ -78,9 +142,10 @@ module.exports = class Scanner {
                         auxiliar += current_char;
                     }
                     else if (current_char === "\n") {
-                        // Acceptation
-                        console.log(auxiliar);
-                        auxiliar
+                        // Acceptation single line comment
+                        //console.log(auxiliar);
+                        tokenList.push(new Token(TokenType.COMMENT, auxiliar));
+                        auxiliar = "";
                         state = 0;
                     }
 
@@ -134,22 +199,90 @@ module.exports = class Scanner {
                     }
 
                     break;
+
                 case 5:
 
                     // Acceptation
-                    console.log(auxiliar);
+                    //console.log(auxiliar);
+                    tokenList.push(new Token(TokenType.COMMENT, auxiliar));
                     auxiliar = "";
                     state = 0;
 
                     break;
+
+                case 6:
+
+                    if (this.isLetter(current_char)) {
+                        //console.log("Is a letter -> ", current_char);
+                        auxiliar += current_char;
+                        state = 6;
+                    }
+                    else if (this.isNumber(current_char)) {
+                        auxiliar += current_char;
+                        state = 6;
+                    }
+                    else if (current_char === "_") {
+                        auxiliar += current_char;
+                        state = 6;
+                    }
+                    else {
+                        this.addToken(auxiliar);
+                        auxiliar = "";
+                        i--;
+                        state = 0;
+                    }
+                    break;
+
+                case 7:
+
+                    if (this.isNumber(current_char)) {
+                        //console.log("Is a number -> ", current_char)
+                        auxiliar += current_char;
+                        state = 7;
+                    }
+                    else if (current_char === ".") {
+                        auxiliar += current_char;
+                        state = 8;
+                    }
+                    else {
+                        tokenList.push(new Token(TokenType.NUMBER, auxiliar));
+                        auxiliar = ""
+                        state = 0;
+                    }
+
+                    break;
+
+                case 8:
+
+                    if (this.isNumber(current_char)) {
+                        auxiliar += current_char;
+                        state = 8;
+                    }
+                    else {
+                        tokenList.push(new Token(TokenType.NUMBER, auxiliar));
+                        auxiliar = "";
+                        state = 0;
+
+                    }
+
+                    break;
+
+                case 9:
+
+                    if (current_char === "=") {
+                        auxiliar += current_char;
+                        tokenList.push(new Token(TokenType.EQUAL, auxiliar))
+                        auxiliar = ""
+                        state = 0;
+                    }
+                    else {
+
+                    }
+
+                    break;
             }
 
-            //console.log(current_char);
-            // Scan source code and collect tokens
-
         }
-
-        console.log(auxiliar);
 
     }
 
@@ -163,8 +296,100 @@ module.exports = class Scanner {
         return char.length === 1 && char.match(/[0-9]/i);
     }
 
-    ReturnTokens() {
+    addToken(str) {
 
+        switch (str) {
+            case "public":
+                tokenList.push(new Token(TokenType.PUBLIC, str))
+                break;
+
+            case "static":
+                tokenList.push(new Token(TokenType.STATIC, str))
+                break;
+
+            case "void":
+                tokenList.push(new Token(TokenType.VOID, str))
+                break;
+
+            case "interface":
+                tokenList.push(new Token(TokenType.INTERFACE, str))
+                break;
+
+            case "main":
+                tokenList.push(new Token(TokenType.MAIN, str))
+                break;
+
+            /* Conditionals */
+
+            case "if":
+                tokenList.push(new Token(TokenType.IF, str))
+                break;
+
+            case "else":
+                tokenList.push(new Token(TokenType.ELSE, str))
+                break;
+
+            /* Data types */
+
+            case "int":
+                tokenList.push(new Token(TokenType.INT, str))
+                break;
+
+            case "string":
+                tokenList.push(new Token(TokenType.STRING, str))
+                break;
+
+            case "boolean":
+                tokenList.push(new Token(TokenType.BOOLEAN, str))
+                break;
+
+            case "char":
+                tokenList.push(new Token(TokenType.CHAR, str))
+                break;
+
+            case "float":
+                tokenList.push(new Token(TokenType.FLOAT, str))
+                break;
+
+            /* Cycles */
+
+            case "for":
+                tokenList.push(new Token(TokenType.FOR, str))
+                break;
+
+            case "do":
+                tokenList.push(new Token(TokenType.DO, str))
+                break;
+
+            case "while":
+                tokenList.push(new Token(TokenType.WHILE, str))
+                break;
+
+            /* Sentences */
+
+            case "break":
+                tokenList.push(new Token(TokenType.BREAK, str))
+                break;
+
+            case "continue":
+                tokenList.push(new Token(TokenType.CONTINUE, str))
+                break;
+
+            case "return":
+                tokenList.push(new Token(TokenType.RETURN, str))
+                break;
+
+
+            default:
+                tokenList.push(new Token(TokenType.ID, str))
+                break;
+        }
+    }
+
+    ReturnTokens() {
+        tokenList.forEach(element =>
+            console.log("type: " + element.type, " --- value: " + element.value)
+        )
     }
 
 }
