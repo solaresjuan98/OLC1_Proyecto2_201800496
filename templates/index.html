@@ -94,28 +94,32 @@
     </br>
     <div class="clearfix"></div>
 
-    <h2>Hola que tal</h2>
+    <h2>Herramientas </h2>
     <div id="left-side">
         <h3>JAVA</h3>
+        <!-- POST METHOD -->
+        <form action="http://localhost:5000/api/" method="POST">
+            <textarea rows="35" cols="75" id="source_code" name="source_code"></textarea>
 
-        <textarea rows="25"
-            cols="85">At w3schools.com you will learn how to make a website. They offer free tutorials in all web development technologies.</textarea>
-
-        <button>Analizar y traducir</button>
-        <button>Limpiar</button>
+            <input type="submit" value="Analizar">
+            <input type="button" value="Clear" onclick="resetForm()">
+        </form>
     </div>
 
     <aside id="lateral">
         <h3>JAVASCRIPT</h3>
-        <textarea rows="20"
-            cols="70">At w3schools.com you will learn how to make a website. They offer free tutorials in all web development technologies.</textarea>
+        <textarea rows="20" cols="70"></textarea>
         </br>
         <h3>PYTHON</h3>
-        <textarea rows="20"
-            cols="70">At w3schools.com you will learn how to make a website. They offer free tutorials in all web development technologies.</textarea>
+        <textarea rows="20" cols="70"></textarea>
 
     </aside>
 
 </body>
+<script>
+    function resetForm() {
+        document.getElementById("source_code").value = "";
+    }
+</script>
 
 </html>

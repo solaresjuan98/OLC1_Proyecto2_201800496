@@ -70,11 +70,13 @@ const TokenType = {
 }
 var tokenList = [];
 var errorList = [];
-
+var row = 1;
 // Scanner Java 
 module.exports = class Scanner {
     constructor(text) {
         this.text = text;
+        this.tokenList = tokenList;
+        row = 1;
 
     }
 
@@ -85,8 +87,8 @@ module.exports = class Scanner {
         source_code = this.text;
         let current_char = '';
         let state = 0;
-        let row = 1;
-        let column = 1;
+
+        var column = 1;
 
 
 
@@ -157,7 +159,7 @@ module.exports = class Scanner {
                     }
                     else if (current_char === "|") {
                         auxiliar += current_char;
-                        //tokenList.push(new Token(TokenType.ASSIGNATION, auxiliar));
+                        tokenList.push(new Token(TokenType.OR, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
@@ -213,6 +215,17 @@ module.exports = class Scanner {
                         auxiliar += current_char;
                         state = 12;
                     }
+                    // others
+                    else if (current_char === "\n") {
+                        state = 0;
+                        row++;
+                    }
+                    else if (current_char === "\t") {
+                        state = 0;
+                        //row++;
+                    }
+
+
 
                     break;
 
@@ -636,6 +649,8 @@ module.exports = class Scanner {
         tokenList.forEach(element =>
             console.log("type: " + element.type, " --- value: " + element.value)
         )
+
+        console.log(row);
     }
 
 }

@@ -1,6 +1,7 @@
 const { Router } = require('express')
 const router = Router();
-var Scanner = require('../util/Scanner')
+var Scanner = require('../util/Scanner');
+var Parser = require('../util/Parser');
 
 router.get('/test', (req, res) => {
     //res.send({"Entry": "text entry"});
@@ -29,11 +30,17 @@ router.post("/", (req, res) => {
 
         var scanner = new Scanner(source_code);
         scanner.scan();
-        res.send('Source code received');
-        scanner.ReturnTokens();
+        //console.log(scanner.tokenList);
+        console.log('Source code received');
+        //scanner.ReturnTokens();
+
+        var parser = new Parser(scanner.tokenList)
+        parser.getTokens();
+        
     } else {
         res.json({ error: 'An error has ocurred.' });
     }
+
 
 
 })
