@@ -30,6 +30,8 @@ const TokenType = {
     LEFT_BRACE: 'Left brace',
     RIGHT_BRACE: 'Right brace',
     SEMICOLON: 'Semicolon',
+    LEFT_BRACKET: 'Left bracket',
+    RIGHT_BRACKET: 'Right bracket',
     /*conditionals*/
     IF: 'if',
     ELSE: 'else',
@@ -43,7 +45,7 @@ const TokenType = {
     RETURN: 'return',
     /* Data types */
     INT: 'int',
-    STRING: 'string',
+    STRING: 'String',
     BOOLEAN: 'boolean',
     FLOAT: 'float',
     CHAR: 'char',
@@ -75,6 +77,7 @@ var row = 1;
 module.exports = class Scanner {
     constructor(text) {
         this.text = text;
+        tokenList = []; // cleaning
         this.tokenList = tokenList;
         row = 1;
 
@@ -124,6 +127,18 @@ module.exports = class Scanner {
                     else if (current_char === ")") {
                         auxiliar += current_char;
                         tokenList.push(new Token(TokenType.RIGHT_PAR, auxiliar));
+                        auxiliar = "";
+                        state = 0;
+                    }
+                    else if (current_char === "[") {
+                        auxiliar += current_char;
+                        tokenList.push(new Token(TokenType.LEFT_BRACKET, auxiliar));
+                        auxiliar = "";
+                        state = 0;
+                    }
+                    else if (current_char === "]") {
+                        auxiliar += current_char;
+                        tokenList.push(new Token(TokenType.RIGHT_BRACKET, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
@@ -224,6 +239,14 @@ module.exports = class Scanner {
                         state = 0;
                         //row++;
                     }
+                    else {
+                        //auxiliar += current_char;
+                        if (current_char !== "\n" || current_char !== "") {
+                            errorList.push(current_char);
+                            auxiliar = "";
+                            state = 0;
+                        }
+                    }
 
 
 
@@ -256,7 +279,7 @@ module.exports = class Scanner {
                     }
                     else if (current_char === "\n") {
                         // Acceptation single line comment
-                        tokenList.push(new Token(TokenType.COMMENT, auxiliar));
+                        //tokenList.push(new Token(TokenType.COMMENT, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
@@ -322,7 +345,7 @@ module.exports = class Scanner {
 
                     // Acceptation
                     //console.log(auxiliar);
-                    tokenList.push(new Token(TokenType.COMMENT, auxiliar));
+                    //tokenList.push(new Token(TokenType.COMMENT, auxiliar));
                     auxiliar = "";
                     state = 0;
 
@@ -483,6 +506,11 @@ module.exports = class Scanner {
                 tokenList.push(new Token(TokenType.PUBLIC, str))
                 break;
 
+            case "class":
+                tokenList.push(new Token(TokenType.CLASS, str))
+                break;
+
+
             case "static":
                 tokenList.push(new Token(TokenType.STATIC, str))
                 break;
@@ -531,7 +559,7 @@ module.exports = class Scanner {
                 tokenList.push(new Token(TokenType.INT, str))
                 break;
 
-            case "string":
+            case "String":
                 tokenList.push(new Token(TokenType.STRING, str))
                 break;
 
@@ -653,4 +681,9 @@ module.exports = class Scanner {
         console.log(row);
     }
 
+    ReturnLexErrors() {
+        errorList.forEach(element => {
+            console.log(element);
+        })
+    }
 }

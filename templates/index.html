@@ -94,16 +94,18 @@
     </br>
     <div class="clearfix"></div>
 
-    <h2>Herramientas </h2>
+
     <div id="left-side">
+        <h4>Open a file</h4>
+        <input type="file" id="file_input">
         <h3>JAVA</h3>
         <!-- POST METHOD -->
-        <form action="http://localhost:5000/api/" method="POST">
+       
             <textarea rows="35" cols="75" id="source_code" name="source_code"></textarea>
 
-            <input type="submit" value="Analizar">
+            <button onclick="sendData()">Send</button>
             <input type="button" value="Clear" onclick="resetForm()">
-        </form>
+       
     </div>
 
     <aside id="lateral">
@@ -117,9 +119,59 @@
 
 </body>
 <script>
+
+    function sendData() {
+
+        var source_code = document.getElementById("source_code").value;
+        //console.log(source_code);
+        var data = {
+            "source_code": source_code
+        }
+        console.log(data);
+        fetch("http://localhost:5000/api/send", {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            },
+            mode: 'cors',
+            cache: 'default'
+        }).then(res => res.json())
+            .catch(error => console.log(error))
+            .then(response => console.log(res));
+    }
+
     function resetForm() {
         document.getElementById("source_code").value = "";
+        document.getElementById("file_input").value = "";
     }
+
+    let input = document.querySelector('input');
+    let textarea = document.querySelector('textarea');
+
+    input.addEventListener('change', () => {
+
+        let files = input.files;
+
+        if (files.length == 0) return;
+
+        const file = files[0];
+
+        let r = new FileReader();
+
+        r.onload = (e) => {
+            const file = e.target.result;
+            const lines = file.split(/\r\n|\n/);
+
+            textarea.value = lines.join('\n');
+            document.getElementById("source_code").value = file;
+
+        };
+
+        r.onerror = (e) => alert(e.target.error.name);
+
+        r.readAsText(file);
+    });
 </script>
 
 </html>
