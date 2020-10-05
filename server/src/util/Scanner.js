@@ -22,6 +22,7 @@ const TokenType = {
     ID: 'Identifier',
     /* ----- */
     POINT: 'point',
+    COMMA: 'comma',
     EQUAL: 'equal',
     ASSIGNATION: 'asignation',
     /* Delimeters */
@@ -157,6 +158,12 @@ module.exports = class Scanner {
                     else if (current_char === ".") {
                         auxiliar += current_char;
                         tokenList.push(new Token(TokenType.POINT, auxiliar));
+                        auxiliar = "";
+                        state = 0;
+                    }
+                    else if (current_char === ",") {
+                        auxiliar += current_char;
+                        tokenList.push(new Token(TokenType.COMMA, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }

@@ -14,7 +14,7 @@ module.exports = class Parser {
         var row = 1;
         var column = 1;
         //this.value = value;
-        
+
 
     }
 
@@ -54,7 +54,8 @@ module.exports = class Parser {
         }
         else {
             console.log('Error with ' + tokenActual.type);
-            // Nothing to analize
+            sintaxError = true;
+            this.Match();
         }
 
     }
@@ -68,7 +69,7 @@ module.exports = class Parser {
                   | METHOD
                    
         */
-
+        console.log("LISTP");
         console.log(tokenActual.type);
 
         if (tokenActual.type === 'static') {
@@ -79,9 +80,18 @@ module.exports = class Parser {
             //call to class method
             this.CLASS();
         }
+        else if (tokenActual.type === 'interface') {
+            this.INTERFACE();
+
+        }
+        else if (tokenActual.type === 'int' || tokenActual.type === 'String' || tokenActual.type === 'boolean' || tokenActual.type === 'char' || tokenActual.type === 'void') {
+            this.FUNCTION();
+        }
         else {
             //error
             console.log("Error with " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
         }
 
 
@@ -106,12 +116,59 @@ module.exports = class Parser {
         }
         else {
             console.log('class was expected, but ' + tokenActual.type);
+            sintaxError = true;
+            this.Match();
         }
+    }
+
+    INTERFACE() {
+        this.Interface();
+    }
+
+    FUNCTION() {
+        this.TYPE();
+        this.Identifier();
+        this.PARAMETERS();
+        //this.Left_brace();
+    }
+
+    PARAMETERS() {
+
+        if (tokenActual.type === 'Left parenthesis') {
+
+            this.Match();
+            this.LIST_ID(); // one or + parameters
+        }
+        else {
+            console.log("Left parethesis was expected intead of " + tokenActual.value);
+        }
+    }
+
+    LIST_ID() {
+
+        if (tokenActual.type === 'int' || tokenActual.type === 'String' || tokenActual.type === 'boolean' || tokenActual.type === 'char') {
+
+            this.TYPE();
+            this.Identifier();
+            //this.Comma();
+            this.LIST_ID();
+        }
+        else if (tokenActual.type === 'Right parenthesis') {
+            this.Right_parenthesis();
+            //this.
+        }
+        else{
+
+            console.log("Error with " +tokenActual.type);
+        }
+
+
     }
 
     INSTRUCTIONS() {
 
-
+        console.log("INSTRUCTIONS");
+        console.log(tokenActual.value);
     }
 
     /*
@@ -128,6 +185,8 @@ module.exports = class Parser {
         }
         else {
             console.log("public was expected but " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
 
         }
     }
@@ -141,7 +200,8 @@ module.exports = class Parser {
         }
         else {
             console.log("static was expected but " + tokenActual.type);
-
+            sintaxError = true;
+            this.Match();
         }
     }
 
@@ -154,7 +214,8 @@ module.exports = class Parser {
         }
         else {
             console.log("void was expected but " + tokenActual.type);
-
+            sintaxError = true;
+            this.Match();
         }
     }
 
@@ -167,6 +228,8 @@ module.exports = class Parser {
         }
         else {
             console.log("main was expected but " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
 
         }
     }
@@ -180,6 +243,8 @@ module.exports = class Parser {
         }
         else {
             console.log("'(' was expected but " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
 
         }
     }
@@ -193,7 +258,8 @@ module.exports = class Parser {
         }
         else {
             console.log("String was expected but " + tokenActual.type);
-
+            sintaxError = true;
+            this.Match();
         }
     }
 
@@ -206,6 +272,8 @@ module.exports = class Parser {
         }
         else {
             console.log("'[' was expected but " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
 
         }
     }
@@ -219,7 +287,8 @@ module.exports = class Parser {
         }
         else {
             console.log("']' was expected but " + tokenActual.type);
-
+            sintaxError = true;
+            this.Match();
         }
     }
 
@@ -233,7 +302,8 @@ module.exports = class Parser {
         }
         else {
             console.log("args was expected but " + tokenActual.type);
-
+            sintaxError = true;
+            this.Match();
         }
     }
 
@@ -246,6 +316,8 @@ module.exports = class Parser {
         }
         else {
             console.log("')' was expected but " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
 
         }
     }
@@ -255,9 +327,12 @@ module.exports = class Parser {
 
             //console.log("correcto");
             this.Match();
+            this.INSTRUCTIONS();
         }
         else {
             console.log("'{' was expected but " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
         }
     }
 
@@ -269,6 +344,8 @@ module.exports = class Parser {
         }
         else {
             console.log('An Identifier was expecter, but ' + tokenActual.type);
+            sintaxError = true;
+            this.Match();
         }
     }
 
@@ -278,9 +355,11 @@ module.exports = class Parser {
         if (tokenActual.type === 'Left brace') {
 
             this.Match();
+            this.INSTRUCTIONS();
         }
         else {
             console.log("'{' was expected, but " + tokenActual.type);
+            sintaxError = true;
         }
     }
 
@@ -288,17 +367,77 @@ module.exports = class Parser {
         if (tokenActual.type === 'Right brace') {
 
             this.Match();
+            this.LIST();
         }
         else {
             console.log("'}' was expected, but " + tokenActual.type);
+            sintaxError = true;
         }
     }
+
+    Interface() {
+        if (tokenActual.type === 'interface') {
+
+            this.Match();
+            this.Identifier();
+        }
+        else {
+            console.log("'interface' was expected, but " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
+        }
+
+    }
+
+    // for parameters
+    Left_parenthesis() {
+
+        if(tokenActual.type === 'Left parenthesis') {
+            this.Match();
+        }
+        else {
+            console.log("'(' was expected instead " +tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Right_parenthesis() {
+        if(tokenActual.type === 'Right parenthesis') {
+            this.Match();
+        }
+        else {
+            console.log("')' was expected instead " +tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Comma() { 
+        if(tokenActual.type === 'comma') {
+            this.Match();
+        }
+        else {
+            console.log("',' was expected instead " +tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
 
 
 
     // Data types
     TYPE() {
 
+        if (tokenActual.type === 'int' || tokenActual.type === 'String' || tokenActual.type === 'boolean' || tokenActual.type === 'char' || tokenActual.type === 'void') {
+            this.Match();
+        }
+        else {
+            console.log("A data type was expected instead of " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
+        }
 
     }
 
@@ -312,8 +451,47 @@ module.exports = class Parser {
             1. Panic mode: (Error = True) [while tokenActual !== ';' || tokenActual !== '{']
             2. Change the index (Error = False)
         */
-        index++;
-        tokenActual = this.tokenList[index];
+        console.log(sintaxError);
+        if (sintaxError) {
+
+            while (tokenActual.type !== 'Semicolon' || tokenActual.type !== 'Left brace') {
+
+
+                index++;
+                tokenActual = this.tokenList[index];
+
+                if (tokenActual.type === 'Semicolon') {
+
+                    console.log("';' found");
+                    sintaxError = false;
+                    this.INSTRUCTIONS();
+                    break;
+                }
+                else if (tokenActual.type === 'Left brace') {
+
+                    console.log("'{' found ");
+                    sintaxError = false;
+                    index++;
+                    tokenActual = this.tokenList[index];
+                    this.INSTRUCTIONS();
+                    break;
+                }
+                /*else {
+                    index--;
+                    console.log(tokenActual.type);
+                    console.log(":v");
+                    this.INSTRUCTIONS();
+                    break;
+                }*/
+            }
+
+        } else {
+            index++;
+            tokenActual = this.tokenList[index];
+        }
+
+
+
     }
 
 }
