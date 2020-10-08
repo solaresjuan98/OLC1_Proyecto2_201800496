@@ -24,7 +24,7 @@ const TokenType = {
     POINT: 'point',
     COMMA: 'comma',
     EQUAL: 'equal',
-    ASSIGNATION: 'asignation',
+    ASSIGNATION: 'assignation',
     /* Delimeters */
     LEFT_PAR: 'Left parenthesis',
     RIGHT_PAR: 'Right parenthesis',
@@ -50,6 +50,7 @@ const TokenType = {
     BOOLEAN: 'boolean',
     FLOAT: 'float',
     CHAR: 'char',
+    DOUBLE: 'double',
     /* LOGICAL EXPRESSIONS  */
     AND: 'and',
     OR: 'or',
@@ -581,6 +582,11 @@ module.exports = class Scanner {
             case "float":
                 tokenList.push(new Token(TokenType.FLOAT, str))
                 break;
+
+            case "double":
+                tokenList.push(new Token(TokenType.DOUBLE, str))
+                break;
+
 
             /* Cycles */
 
