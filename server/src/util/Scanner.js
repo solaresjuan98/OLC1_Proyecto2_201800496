@@ -67,7 +67,9 @@ const TokenType = {
     ASTERISK: 'asterisk',
     SLASH: 'slash',
     /*  others */
-    TEXT_STRING: 'text string'
+    TEXT_STRING: 'text string',
+    EOF: 'eof'
+
 
 
 
@@ -539,6 +541,10 @@ module.exports = class Scanner {
                 tokenList.push(new Token(TokenType.SYSTEM, str))
                 break;
 
+            case "out":
+                tokenList.push(new Token(TokenType.OUT, str))
+                break;
+
             case "print":
                 tokenList.push(new Token(TokenType.PRINT, str))
                 break;
@@ -632,6 +638,11 @@ module.exports = class Scanner {
                 break;
         }
 
+    }
+
+    addEOF() {
+
+        tokenList.push(new Token(TokenType.EOF, 'End of file'));
     }
 
     addRelationalExp(str) {

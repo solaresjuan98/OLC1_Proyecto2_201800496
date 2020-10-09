@@ -29,6 +29,7 @@ router.post("/send", (req, res) => {
         var scanner = new Scanner(source_code);
         scanner.scan();
         console.log('Source code received');
+        scanner.addEOF();
         //console.log(scanner.ReturnLexErrors());
         var parser = new Parser(scanner.tokenList);
         //parser.getTokens();
