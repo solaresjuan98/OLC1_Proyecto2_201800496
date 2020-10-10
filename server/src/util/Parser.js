@@ -248,6 +248,9 @@ module.exports = class Parser {
             this.PRINT();
             //this.INSTRUCTIONS_P();
         }
+        else if (tokenActual.type === 'if') {
+            this.IF();
+        }
         else if (tokenActual.type === 'eof') {
 
             console.log('End of file');
@@ -329,7 +332,7 @@ module.exports = class Parser {
             this.VALUE();
             this.VAR_LIST();
         }
-        else if(tokenActual.type === 'comma') {
+        else if (tokenActual.type === 'comma') {
             this.VAR_LIST();
         }
         /*else {
@@ -489,7 +492,7 @@ module.exports = class Parser {
 
     VALUE_P() {
 
-        console.log('VALUE_P -- '+ tokenActual.value);
+        console.log('VALUE_P -- ' + tokenActual.value);
         if (tokenActual.type === 'Identifier' || tokenActual.type === 'number' || tokenActual.type === 'true' || tokenActual.type === 'false' || tokenActual.type === 'text string') {
 
             this.Match();
@@ -525,7 +528,7 @@ module.exports = class Parser {
             PRINT_P -> println ( DATA ) ;
                      | print (DATA) ;
         */
-        console.log('PRINT_P --' +tokenActual.type );
+        console.log('PRINT_P --' + tokenActual.type);
         //console.log(sintaxError);
         if (tokenActual.type === 'println') {
 
@@ -537,7 +540,7 @@ module.exports = class Parser {
             this.INSTRUCTIONS();
         }
         else if (tokenActual.type === 'print') {
-            
+
             this.Print();
             this.Left_parenthesis();
             this.DATA();
@@ -568,6 +571,171 @@ module.exports = class Parser {
             sintaxError = true;
             this.Match();
         }
+    }
+
+
+    IF() {
+        /*
+            IF -> if ( CONDITION ) { INSTRUCTIONS } THEN
+        */
+
+        if (tokenActual.type === 'if') {
+            this.If();
+            this.Left_parenthesis();
+            //CONDITION
+            this.Right_parenthesis();
+            this.Left_brace();
+            this.INSTRUCTIONS();
+            this.Right_brace();
+            this.THEN();
+
+        }
+        else {
+            console.log('If was expected instead of ' + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+
+    }
+
+    THEN() {
+        /*
+            THEN -> else THEN_P
+                  | e INSTRUCTIONS
+        */
+
+        if (tokenActual.type === 'else') {
+            this.Else();
+
+        }
+        else {
+            this.INSTRUCTIONS();
+        }
+    }
+
+    THEN_P() {
+        /*
+            THEN_P -> { INSTRUCTIONS }
+                    | if { INSTRUCTIONS }
+        */
+        if (tokenActual.type === 'Right brace') {
+            //this.Else();
+            this.Left_brace();
+            this.INSTRUCTIONS();
+            this.Right_brace();
+
+        }
+        else if (tokenActual.type === 'if') {
+            this.If();
+            this.Left_brace();
+            this.INSTRUCTIONS();
+            this.Right_brace();
+        }
+        else {
+            //console.log();
+            //sintaxError = true;
+            //this.Match();
+        }
+
+    }
+
+    CONDITION() {
+        /**
+         * CONDITION -> EXPR LOGIC
+        */
+        console.log('CONDITION --' +tokenActual.value);
+
+        if(tokenActual.type === 'number' || tokenActual.type === 'Identifier') {
+            this.EXPR();
+        }
+        else {
+            console.log('Error with ' +tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    EXPR() {
+        console.log('EXPR --' +tokenActual.value);
+        this.E();
+    }
+
+    E() {
+        console.log('E --' +tokenActual.value);
+
+        this.T();
+        this.EP();
+    }
+
+    EP() {
+        /*
+            EP -> + T EP
+                | - T EP
+                | Epsilon
+        */
+
+       console.log('EP --' +tokenActual.value);
+        if (tokenActual.type == 'plus') {
+            this.Plus();
+        }
+        else if (tokenActual.type == 'minus') {
+            this.Minus();
+        }
+        else {
+
+        }
+
+    }
+
+    T() {
+        console.log('T --' +tokenActual.value);
+        this.F();
+        this.TP();
+    }
+
+    TP() {
+
+        /*
+            TP -> * F TP
+                | / F TP
+                | Epsilon 
+            
+        */
+       console.log('TP --' +tokenActual.value);
+        if (tokenActual.type == 'asterisk') {
+
+        }
+        else if (tokenActual.type == 'slash') {
+
+        }
+        else {
+
+        }
+    }
+
+    F() {
+        /*
+            F -> number
+               | id
+               | ( E )
+        */
+       console.log('F --' +tokenActual.value);
+        if (tokenActual.type === 'number') {
+            this.Number();
+        }
+        else if (tokenActual.type === 'Identifier') {
+            this.Identifier();
+        }
+        else if (tokenActual.type === 'Left parenthesis') {
+            this.Left_parenthesis();
+        }
+        else {
+            console.log('Error with ' + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+
+
     }
 
     /*
@@ -935,6 +1103,78 @@ module.exports = class Parser {
             this.Match();
         }
     }
+
+
+    If() {
+        if (tokenActual.type === 'if') {
+            this.Match();
+        }
+        else {
+            console.log("if was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Else() {
+        if (tokenActual.type === 'asterisk') {
+            this.Match();
+        }
+        else {
+            console.log("else was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    
+    Asterisk() {
+        if (tokenActual.type === 'slash') {
+            this.Match();
+        }
+        else {
+            console.log("slash was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Slash() {
+        if (tokenActual.type === 'slash') {
+            this.Match();
+        }
+        else {
+            console.log("slash was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+
+    Plus() {
+        if (tokenActual.type === 'plus') {
+            this.Match();
+        }
+        else {
+            console.log("'+' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Minus() {
+        if (tokenActual.type === 'minus') {
+            this.Match();
+        }
+        else {
+            console.log("'-' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+
+
     // Data types
     TYPE() {
         console.log(tokenActual.value);
