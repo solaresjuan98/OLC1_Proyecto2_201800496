@@ -36,7 +36,7 @@ const TokenType = {
     /*conditionals*/
     IF: 'if',
     ELSE: 'else',
-    /*cycles (repetition sentences)*/
+    /*cycles (repetition sentences) */
     FOR: 'for',
     WHILE: 'while',
     DO: 'do',
@@ -190,7 +190,7 @@ module.exports = class Scanner {
                     }
                     else if (current_char === "&") {
                         auxiliar += current_char;
-                        tokenList.push(new Token(TokenType.ASSIGNATION, auxiliar));
+                        tokenList.push(new Token(TokenType.AND, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
@@ -519,7 +519,6 @@ module.exports = class Scanner {
             case "class":
                 tokenList.push(new Token(TokenType.CLASS, str))
                 break;
-
 
             case "static":
                 tokenList.push(new Token(TokenType.STATIC, str))

@@ -28,15 +28,15 @@ router.post("/send", (req, res) => {
     if (source_code) {
         var scanner = new Scanner(source_code);
         scanner.scan();
-        console.log('Source code received');
+        //console.log('Source code received');
         scanner.addEOF();
         //console.log(scanner.ReturnLexErrors());
         var parser = new Parser(scanner.tokenList);
         //parser.getTokens();
         parser.parse();
         res.status(200);
-        res.end(); 
-        
+        res.end();
+
     } else {
         //console.log(":v")
         res.json({ error: 'An error has ocurred.' });

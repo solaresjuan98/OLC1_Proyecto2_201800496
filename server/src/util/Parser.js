@@ -254,6 +254,12 @@ module.exports = class Parser {
         else if (tokenActual.type === 'do') {
             this.DO();
         }
+        else if (tokenActual.type === 'while') {
+            this.WHILE();
+        }
+        else if (tokenActual.type === 'for') {
+            this.FOR();
+        }
         else if (tokenActual.type === 'eof') {
 
             console.log('End of file');
@@ -511,7 +517,7 @@ module.exports = class Parser {
         /*
             PRINT -> System.out. PRINT_P
         */
-
+        console.log("PRINT -- " + tokenActual.value);
         if (tokenActual.type === 'system') {
             this.System();
             this.Point();
@@ -564,19 +570,22 @@ module.exports = class Parser {
         /*
             DATA -> str
                   | EXPRESSION
+                  |  id
         */
         if (tokenActual.type === 'text string') {
             this.Text_String();
 
+        } else if (tokenActual.type === 'Identifier') {
+            this.Identifier();
         }
         else {
-            console.log();
+            console.log("Error with -- " + tokenActual.value);
             sintaxError = true;
             this.Match();
         }
     }
 
-    DO() { 
+    DO() {
 
         if (tokenActual.type === 'do') {
             this.Do();
@@ -594,12 +603,67 @@ module.exports = class Parser {
 
         }
         else {
-            console.log('do was expexted instead ' +tokenActual.value);
+            console.log('do was expexted instead ' + tokenActual.value);
             sintaxError = true;
             this.Match();
         }
 
     }
+
+
+    WHILE() {
+        if (tokenActual.type === 'while') {
+            this.While();
+            this.Left_parenthesis();
+            this.EXPR();
+            this.LOGIC();
+            this.EXPR();
+            this.Right_parenthesis();
+            this.Left_brace();
+            this.INSTRUCTIONS();
+            this.Right_brace();
+
+        }
+        else {
+            console.log('while was expexted instead ' + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+
+    FOR() {
+        /*
+            FOR -> for( DEC_FOR ) }
+        */
+
+        if (tokenActual.type === 'for') {
+            this.For();
+            this.Left_parenthesis();
+            this.DEC_FOR();
+            this.Right_parenthesis();
+            this.Left_brace();
+            this.INSTRUCTIONS();
+            this.Right_brace();
+            /*this.EXPR();
+            this.REL();
+            this.EXPR();
+            this.Semicolon();
+            this.EXPR();
+            this.Right_parenthesis();
+            this.Left_brace();
+            this.INSTRUCTIONS();
+            this.Right_brace();*/
+            //this.INSTRUCTIONS();
+
+        }
+        else {
+            console.log("For was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
 
     IF() {
         /*
@@ -625,12 +689,125 @@ module.exports = class Parser {
 
     }
 
+    DEC_FOR() {
+        /*
+            DEC_FOR -> TYPE id = VALUE ; EXPR REL EXPR ; ID++
+        */
+        console.log("DEC_FOR -- " + tokenActual.value);
+        if (tokenActual.type === 'int') {
+            this.TYPE();
+            this.Identifier();
+            this.Assignation();
+            this.EXPR();
+            this.Semicolon();
+            this.EXPR();
+            this.REL();
+            this.EXPR();
+            this.Semicolon();
+            this.Identifier();
+            this.Plus();
+            this.Plus();
+        }
+
+        else {
+            console.log('int was expected instead ' + tokenActual.value);
+            sintaxError = true;
+        }
+    }
+
+
+    CLAUSE() {
+
+        /*
+            CLAUSE -> REL
+                    | LOGIC
+        */
+        console.log('CLAUSE -- ' + tokenActual.type);
+
+        if (tokenActual.type === 'less than' || tokenActual.type === 'greater than' || tokenActual.type === 'not' || tokenActual.type === 'assignation') {
+            // REL
+            this.REL();
+
+        }
+        else if (tokenActual.type === 'and' || tokenActual.type === 'or' || tokenActual.type === 'xor') {
+            // LOGIC
+            this.LOGIC();
+        }
+        else {
+            console.log('If was expected instead of ' + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    REL() {
+        /*
+            REL -> > REL_1
+                 | < REL_1
+                 | ! REL_1
+                 | =
+        */
+        console.log('REL -- ' + tokenActual.value);
+        if (tokenActual.type === 'greater than') {
+            // REL
+            this.Greater_than();
+            this.REL_P();
+        }
+        else if (tokenActual.type === 'less than') {
+            this.Less_than();
+            this.REL_P();
+        } else if (tokenActual.type === 'assignation') {
+            this.Assignation();
+            this.REL_P();
+        }
+
+    }
+
+    REL_P() {
+        /**
+         * REL_P -> =
+         *        | epsilon
+         * 
+        */
+        console.log('REL_P -- ' + tokenActual.value);
+        if (tokenActual.type === 'assignation') {
+            this.Assignation();
+            this.REL_P();
+        } else {
+
+            //
+        }
+    }
+
+    LOGIC() {
+
+        /**
+         * LOGIC -> & &
+         *        | | |
+         *        | ^
+         * 
+        */
+        console.log('LOGIC -- ' + tokenActual.value);
+        if (tokenActual.type === 'and') {
+            this.And();
+            this.And();
+        } else if (tokenActual.type === 'or') {
+            this.Or();
+            this.Or();
+
+        } else if (tokenActual.type === 'xor') {
+            this.Xor();
+        } else {
+            console.log("FFF");
+        }
+
+    }
     THEN() {
         /*
             THEN -> else THEN_P
                   | INSTRUCTIONS
         */
-        console.log('THEN --' +tokenActual.value);
+        console.log('THEN --' + tokenActual.value);
         if (tokenActual.type === 'else') {
             this.Else();
             this.THEN_P();
@@ -645,7 +822,7 @@ module.exports = class Parser {
             THEN_P -> { INSTRUCTIONS }
                     | if { INSTRUCTIONS }
         */
-       console.log('THEN_P --' +tokenActual.value);
+        console.log('THEN_P --' + tokenActual.value);
         if (tokenActual.type === 'Left brace') {
             this.Left_brace();
             this.INSTRUCTIONS();
@@ -653,7 +830,7 @@ module.exports = class Parser {
 
         }
         else if (tokenActual.type === 'if') {
-            
+
             this.IF();
             this.INSTRUCTIONS();
             /*this.If();
@@ -679,7 +856,7 @@ module.exports = class Parser {
 
         if (tokenActual.type === 'number' || tokenActual.type === 'Identifier') {
             this.EXPR();
-            this.LOGIC();
+            this.CLAUSE();
             this.EXPR();
         }
         else {
@@ -1276,7 +1453,60 @@ module.exports = class Parser {
         }
     }
 
+    For() {
+        if (tokenActual.type === 'for') {
+            this.Match();
+        }
+        else {
+            console.log("for was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
 
+    Or() {
+        if (tokenActual.type === 'or') {
+            this.Match();
+        }
+        else {
+            console.log("'|' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Xor() {
+        if (tokenActual.type === 'xor') {
+            this.Match();
+        }
+        else {
+            console.log("'^' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    And() {
+        if (tokenActual.type === 'and') {
+            this.Match();
+        }
+        else {
+            console.log("'&' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Not() {
+        if (tokenActual.type === 'not') {
+            this.Match();
+        }
+        else {
+            console.log("'!' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
 
     // Data types
     TYPE() {
