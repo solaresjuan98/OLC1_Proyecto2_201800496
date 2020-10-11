@@ -251,6 +251,9 @@ module.exports = class Parser {
         else if (tokenActual.type === 'if') {
             this.IF();
         }
+        else if (tokenActual.type === 'do') {
+            this.DO();
+        }
         else if (tokenActual.type === 'eof') {
 
             console.log('End of file');
@@ -573,16 +576,40 @@ module.exports = class Parser {
         }
     }
 
+    DO() { 
+
+        if (tokenActual.type === 'do') {
+            this.Do();
+            this.Left_brace();
+            this.INSTRUCTIONS();
+            this.Right_brace();
+            this.While();
+            this.Left_parenthesis();
+            this.EXPR();
+            this.LOGIC();
+            this.EXPR();
+            this.Right_parenthesis();
+            this.Semicolon();
+            this.INSTRUCTIONS();
+
+        }
+        else {
+            console.log('do was expexted instead ' +tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+
+    }
 
     IF() {
         /*
             IF -> if ( CONDITION ) { INSTRUCTIONS } THEN
         */
-
+        console.log('IF -- ' + tokenActual.value);
         if (tokenActual.type === 'if') {
             this.If();
             this.Left_parenthesis();
-            //CONDITION
+            this.CONDITION();
             this.Right_parenthesis();
             this.Left_brace();
             this.INSTRUCTIONS();
@@ -601,12 +628,12 @@ module.exports = class Parser {
     THEN() {
         /*
             THEN -> else THEN_P
-                  | e INSTRUCTIONS
+                  | INSTRUCTIONS
         */
-
+        console.log('THEN --' +tokenActual.value);
         if (tokenActual.type === 'else') {
             this.Else();
-
+            this.THEN_P();
         }
         else {
             this.INSTRUCTIONS();
@@ -618,50 +645,72 @@ module.exports = class Parser {
             THEN_P -> { INSTRUCTIONS }
                     | if { INSTRUCTIONS }
         */
-        if (tokenActual.type === 'Right brace') {
-            //this.Else();
+       console.log('THEN_P --' +tokenActual.value);
+        if (tokenActual.type === 'Left brace') {
             this.Left_brace();
             this.INSTRUCTIONS();
             this.Right_brace();
 
         }
         else if (tokenActual.type === 'if') {
-            this.If();
-            this.Left_brace();
+            
+            this.IF();
             this.INSTRUCTIONS();
-            this.Right_brace();
+            /*this.If();
+            this.Left_parenthesis();
+            this.EXPR();
+            this.LOGIC();
+            this.EXPR();
+            this.Right_parenthesis();
+            //this.INSTRUCTIONS();
+            this.Right_brace();*/
         }
         else {
-            //console.log();
-            //sintaxError = true;
-            //this.Match();
+            console.log("--------------------");
         }
 
     }
 
     CONDITION() {
         /**
-         * CONDITION -> EXPR LOGIC
+         * CONDITION -> EXPR LOGIC EXPR
         */
-        console.log('CONDITION --' +tokenActual.value);
+        console.log('CONDITION -- ' + tokenActual.value);
 
-        if(tokenActual.type === 'number' || tokenActual.type === 'Identifier') {
+        if (tokenActual.type === 'number' || tokenActual.type === 'Identifier') {
+            this.EXPR();
+            this.LOGIC();
             this.EXPR();
         }
         else {
-            console.log('Error with ' +tokenActual.value);
+            console.log('Error with ' + tokenActual.value);
             sintaxError = true;
             this.Match();
         }
     }
 
+    LOGIC() {
+        /*
+            LOGIC -> >
+                   | <
+                   | =
+        */
+
+        if (tokenActual.type === 'less than') {
+            this.Less_than();
+        }
+        else if (tokenActual.type === 'greater than') {
+            this.Greater_than();
+        }
+    }
+
     EXPR() {
-        console.log('EXPR --' +tokenActual.value);
+        console.log('EXPR --' + tokenActual.value);
         this.E();
     }
 
     E() {
-        console.log('E --' +tokenActual.value);
+        console.log('E --' + tokenActual.value);
 
         this.T();
         this.EP();
@@ -674,12 +723,16 @@ module.exports = class Parser {
                 | Epsilon
         */
 
-       console.log('EP --' +tokenActual.value);
+        console.log('EP --' + tokenActual.value);
         if (tokenActual.type == 'plus') {
             this.Plus();
+            this.T();
+            this.EP();
         }
         else if (tokenActual.type == 'minus') {
             this.Minus();
+            this.T();
+            this.EP();
         }
         else {
 
@@ -688,7 +741,7 @@ module.exports = class Parser {
     }
 
     T() {
-        console.log('T --' +tokenActual.value);
+        console.log('T --' + tokenActual.value);
         this.F();
         this.TP();
     }
@@ -701,12 +754,16 @@ module.exports = class Parser {
                 | Epsilon 
             
         */
-       console.log('TP --' +tokenActual.value);
+        console.log('TP --' + tokenActual.value);
         if (tokenActual.type == 'asterisk') {
-
+            this.Asterisk();
+            this.F();
+            this.TP();
         }
         else if (tokenActual.type == 'slash') {
-
+            this.Slash();
+            this.F();
+            this.TP();
         }
         else {
 
@@ -719,7 +776,7 @@ module.exports = class Parser {
                | id
                | ( E )
         */
-       console.log('F --' +tokenActual.value);
+        console.log('F --' + tokenActual.value);
         if (tokenActual.type === 'number') {
             this.Number();
         }
@@ -728,6 +785,8 @@ module.exports = class Parser {
         }
         else if (tokenActual.type === 'Left parenthesis') {
             this.Left_parenthesis();
+            this.E();
+            this.Right_parenthesis();
         }
         else {
             console.log('Error with ' + tokenActual.value);
@@ -1117,7 +1176,7 @@ module.exports = class Parser {
     }
 
     Else() {
-        if (tokenActual.type === 'asterisk') {
+        if (tokenActual.type === 'else') {
             this.Match();
         }
         else {
@@ -1127,13 +1186,13 @@ module.exports = class Parser {
         }
     }
 
-    
+
     Asterisk() {
-        if (tokenActual.type === 'slash') {
+        if (tokenActual.type === 'asterisk') {
             this.Match();
         }
         else {
-            console.log("slash was expected instead " + tokenActual.value);
+            console.log("'*' was expected instead " + tokenActual.value);
             sintaxError = true;
             this.Match();
         }
@@ -1144,7 +1203,7 @@ module.exports = class Parser {
             this.Match();
         }
         else {
-            console.log("slash was expected instead " + tokenActual.value);
+            console.log("'/' was expected instead " + tokenActual.value);
             sintaxError = true;
             this.Match();
         }
@@ -1168,6 +1227,50 @@ module.exports = class Parser {
         }
         else {
             console.log("'-' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Less_than() {
+        if (tokenActual.type === 'less than') {
+            this.Match();
+        }
+        else {
+            console.log("'<' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Greater_than() {
+        if (tokenActual.type === 'greater than') {
+            this.Match();
+        }
+        else {
+            console.log("'>' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Do() {
+        if (tokenActual.type === 'do') {
+            this.Match();
+        }
+        else {
+            console.log("do was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    While() {
+        if (tokenActual.type === 'while') {
+            this.Match();
+        }
+        else {
+            console.log("while was expected instead " + tokenActual.value);
             sintaxError = true;
             this.Match();
         }
