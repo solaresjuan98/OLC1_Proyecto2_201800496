@@ -1,10 +1,12 @@
 
 var Token = require('./Token');
-
+var fs = require('fs');
 
 var tokenActual;
 var index;
 var sintaxError = false;
+var tab = 0;
+var python = "";
 
 module.exports = class Parser {
 
@@ -14,6 +16,8 @@ module.exports = class Parser {
         var row = 1;
         var column = 1;
         sintaxError = false;
+        python = "";
+        tab = 0;
         //this.value = value;
 
 
@@ -113,8 +117,10 @@ module.exports = class Parser {
             CLASS -> CLASS id { INSTRUCTIONS } LISTP
         */
         if (tokenActual.type === 'class') {
+            python += "class ";
             this.Match();
             this.Identifier();
+            python += ":\n";
             this.Left_brace();
             this.INSTRUCTIONS();
             this.Right_brace();
@@ -143,8 +149,6 @@ module.exports = class Parser {
         this.Identifier();
         this.PARAMETERS();
         this.INSTRUCTIONS();
-        //this.Right_brace();
-        //this.S();
     }
 
     PARAMETERS() {
@@ -260,17 +264,30 @@ module.exports = class Parser {
         else if (tokenActual.type === 'for') {
             this.FOR();
         }
+        else if (tokenActual.type === 'return') {
+
+            this.Return();
+            this.RETURN_STATEMENT();
+            this.Semicolon();
+        }
+        else if (tokenActual.type === 'break') {
+            this.Break();
+            this.Semicolon();
+        }
+        else if (tokenActual.type === 'continue') {
+            this.Continue();
+            this.Semicolon();
+        }
         else if (tokenActual.type === 'eof') {
 
             console.log('End of file');
         }
-        //this.Match();
     }
 
     INSTRUCTIONS_P() {
 
         /**
-         * INSTRUCTIONS_P -> ( CALL_METHDD
+         * INSTRUCTIONS_P -> ( CALL_METHOD
          *                 | = ASSIGNATION
          * 
         */
@@ -974,6 +991,25 @@ module.exports = class Parser {
 
     }
 
+    RETURN_STATEMENT() {
+        /**
+         * RETURN_STATEMENT -> EXPR
+         *                   | text_string 
+         * 
+         */
+        if (tokenActual.type === 'Left parenthesis' || tokenActual.type === 'number' || tokenActual.type === 'Identifier') {
+            this.EXPR();
+        }
+        else if (tokenActual.type === 'text string') {
+            this.Text_String();
+        }
+        else {
+            console.log('');
+        }
+
+
+    }
+
     /*
         TERMINAL SYMBOLS
     */
@@ -1114,8 +1150,13 @@ module.exports = class Parser {
         if (tokenActual.type === 'Right parenthesis') {
 
             //console.log("correcto");
+            //Translate sentence to python sintax
+            python += "def main():\n";
+
             this.Match();
             this.Left_brace_();
+
+            
         }
         else {
             console.log("')' was expected but " + tokenActual.type);
@@ -1129,8 +1170,10 @@ module.exports = class Parser {
         if (tokenActual.type === 'Left brace') {
 
             //console.log("correcto");
+            tab++;
             this.Match();
             this.INSTRUCTIONS();
+            
         }
         else {
             console.log("'{' was expected but " + tokenActual.type);
@@ -1144,8 +1187,11 @@ module.exports = class Parser {
         //console.log("Identifier")
         console.log(tokenActual.value, 'Identifier');
         if (tokenActual.type === 'Identifier') {
-
+            python += tokenActual.value +" "; 
             this.Match();
+
+            //transalate
+            //python += tokenActual.value;
         }
         else {
             console.log('An Identifier was expected instead of ' + tokenActual.type);
@@ -1182,7 +1228,7 @@ module.exports = class Parser {
 
     Left_brace() {
         if (tokenActual.type === 'Left brace') {
-
+            tab++;
             this.Match();
             //this.INSTRUCTIONS();
         }
@@ -1195,7 +1241,8 @@ module.exports = class Parser {
 
     Semicolon() {
         if (tokenActual.type === 'Semicolon') {
-
+            
+            python += "\n";
             this.Match();
         }
         else {
@@ -1209,7 +1256,7 @@ module.exports = class Parser {
 
     Right_brace() {
         if (tokenActual.type === 'Right brace') {
-
+            tab--;
             this.Match();
             //this.LIST();
         }
@@ -1239,6 +1286,8 @@ module.exports = class Parser {
     Left_parenthesis() {
 
         if (tokenActual.type === 'Left parenthesis') {
+            // translate
+            python += "(";
             this.Match();
         }
         else {
@@ -1250,7 +1299,12 @@ module.exports = class Parser {
 
     Right_parenthesis() {
         if (tokenActual.type === 'Right parenthesis') {
+            
+            // translate
+            python += ")\n";
             this.Match();
+
+            
         }
         else {
             console.log("')' was expected instead " + tokenActual.value);
@@ -1308,6 +1362,8 @@ module.exports = class Parser {
 
     Print() {
         if (tokenActual.type === 'print') {
+            // translate
+            python += this.GenTab(tab) + "print";
             this.Match();
         }
         else {
@@ -1319,7 +1375,13 @@ module.exports = class Parser {
 
     Println() {
         if (tokenActual.type === 'println') {
+
+            // translate
+            console.log(tab);
+            python += this.GenTab(tab) + "print";
+
             this.Match();
+
         }
         else {
             console.log("print was expected instead " + tokenActual.value);
@@ -1331,7 +1393,13 @@ module.exports = class Parser {
     Text_String() {
 
         if (tokenActual.type === 'text string') {
+
+            //translate
+            python += tokenActual.value;
+
             this.Match();
+
+
         }
         else {
             console.log("text string was expected instead " + tokenActual.value);
@@ -1464,6 +1532,39 @@ module.exports = class Parser {
         }
     }
 
+    Break() {
+        if (tokenActual.type === 'break') {
+            this.Match();
+        }
+        else {
+            console.log("break was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Continue() {
+        if (tokenActual.type === 'continue') {
+            this.Match();
+        }
+        else {
+            console.log("continue was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Return() {
+        if (tokenActual.type === 'return') {
+            this.Match();
+        }
+        else {
+            console.log("return was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
     Or() {
         if (tokenActual.type === 'or') {
             this.Match();
@@ -1585,4 +1686,24 @@ module.exports = class Parser {
 
     }
 
+
+    WriteFile() {
+        fs.writeFile('result/prueba.py', python, function (err) {
+            if (err) {
+                return console.log(err);
+            }
+        })
+    }
+
+    GenTab(n) {
+        let tabs = n * 4;
+        let tab = "";
+
+        for (var i = 1; i <= tabs; i++) {
+            tab += " ";
+            console.log(i);
+        }
+
+        return tab;
+    }
 }

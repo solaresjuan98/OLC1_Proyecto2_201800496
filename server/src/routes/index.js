@@ -34,6 +34,7 @@ router.post("/send", (req, res) => {
         var parser = new Parser(scanner.tokenList);
         //parser.getTokens();
         parser.parse();
+        parser.WriteFile();
         res.status(200);
         res.end();
 
