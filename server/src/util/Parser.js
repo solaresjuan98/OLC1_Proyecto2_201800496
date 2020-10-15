@@ -112,8 +112,37 @@ module.exports = class Parser {
 
     MAINP() {
 
+        /*
+            MAINP -> static void main (String [] args) { INSTRUCTIONS }
+        */
+        if (tokenActual.type === 'static') {
+
+            // translate
+            python += "def ";
+            this.Static();
+            this.Void();
+            this.Main();
+            python += "Main"
+            this.Left_parenthesis();
+            this.String_p();
+            this.Left_b_();
+            this.Right_b_();
+            this.Args();
+            this.Right_parenthesis();
+            python += ":\n";
+            this.Left_brace();
+            this.INSTRUCTIONS();
+            this.Right_brace();
+            this.S();
+            //thid.INSTRUCTIONS();
+        }
+        else { 
+            console.log("Error with " + tokenActual.value); 
+        }
+
+
         // Call to the Terminal symbols methods
-        this.Static();
+        //this.Static();
     }
 
     CLASS() {
@@ -241,7 +270,7 @@ module.exports = class Parser {
         else if (tokenActual.type === 'Right parenthesis') {
             this.Right_parenthesis();
             //translate
-            python+= ":\n";
+            python += ":\n";
             this.Left_brace();
             this.INSTRUCTIONS();
             this.Right_brace();
@@ -348,7 +377,7 @@ module.exports = class Parser {
         console.log('DECLARATION');
 
         this.TYPE();
-        console.log("fdff" + tab);    
+        console.log("fdff" + tab);
         python += this.GenTab(tab);
         this.Identifier();
         this.DECLARATION_P();
@@ -550,7 +579,8 @@ module.exports = class Parser {
 
         console.log('VALUE_P -- ' + tokenActual.value);
         if (tokenActual.type === 'Identifier' || tokenActual.type === 'number' || tokenActual.type === 'true' || tokenActual.type === 'false' || tokenActual.type === 'text string') {
-
+            //translate
+            python += tokenActual.value;
             this.Match();
         }
         else {
@@ -663,9 +693,10 @@ module.exports = class Parser {
             this.While();
             this.Left_parenthesis();
             this.EXPR();
-            this.LOGIC();
+            this.CLAUSE();
             this.EXPR();
             this.Right_parenthesis();
+            python += ":\n";
             this.Left_brace();
             this.INSTRUCTIONS();
             this.Right_brace();
@@ -686,6 +717,7 @@ module.exports = class Parser {
 
         if (tokenActual.type === 'for') {
             this.For();
+            // cambiar parentesis por parentesis solo para for 
             this.Left_parenthesis();
             this.DEC_FOR();
             this.Right_parenthesis();
@@ -772,7 +804,7 @@ module.exports = class Parser {
         */
         console.log('CLAUSE -- ' + tokenActual.type);
 
-        if (tokenActual.type === 'less than' || tokenActual.type === 'less or equal than' || tokenActual.type === 'greater than' || tokenActual.type === 'less or greater than' || tokenActual.type === 'not' || tokenActual.type === 'assignation') {
+        if (tokenActual.type === 'less than' || tokenActual.type === 'less or equal than' || tokenActual.type === 'greater than' || tokenActual.type === 'greater or equal than' || tokenActual.type === 'not' || tokenActual.type === 'assignation') {
             // REL
             this.REL();
 
@@ -802,7 +834,7 @@ module.exports = class Parser {
             //this.REL_P();
         }
         else if (tokenActual.type === 'greater or equal than') {
-            //this.Less_than();
+            this.Greater_or_equal_than();
             //this.REL_P();
         }
         else if (tokenActual.type === 'less than') {
@@ -810,6 +842,8 @@ module.exports = class Parser {
             //this.REL_P();
         }
         else if (tokenActual.type === 'less or equal than') {
+
+            this.Less_or_equal_than();
             //this.Less_than();
             //this.REL_P();
         } else if (tokenActual.type === 'assignation') {
@@ -847,9 +881,11 @@ module.exports = class Parser {
         if (tokenActual.type === 'and') {
             this.And();
             this.And();
+            python += " and ";
         } else if (tokenActual.type === 'or') {
             this.Or();
             this.Or();
+            python += " or ";
 
         } else if (tokenActual.type === 'xor') {
             this.Xor();
@@ -915,21 +951,6 @@ module.exports = class Parser {
             console.log('Error with ' + tokenActual.value);
             sintaxError = true;
             this.Match();
-        }
-    }
-
-    LOGIC() {
-        /*
-            LOGIC -> >
-                   | <
-                   | =
-        */
-
-        if (tokenActual.type === 'less than') {
-            this.Less_than();
-        }
-        else if (tokenActual.type === 'greater than') {
-            this.Greater_than();
         }
     }
 
@@ -1070,7 +1091,7 @@ module.exports = class Parser {
 
             //console.log("correcto");
             this.Match();
-            this.Void();
+            //this.Void();
         }
         else {
             console.log("static was expected but " + tokenActual.type);
@@ -1084,7 +1105,7 @@ module.exports = class Parser {
 
             //console.log("correcto");
             this.Match();
-            this.Main();
+            //this.Main();
         }
         else {
             console.log("void was expected but " + tokenActual.type);
@@ -1098,7 +1119,7 @@ module.exports = class Parser {
 
             //console.log("correcto");
             this.Match();
-            this.Left_p_();
+            //this.Left_p_();
         }
         else {
             console.log("main was expected but " + tokenActual.type);
@@ -1128,7 +1149,7 @@ module.exports = class Parser {
 
             //console.log("correcto");
             this.Match();
-            this.Left_b_();
+            //this.Left_b_();
         }
         else {
             console.log("String was expected but " + tokenActual.type);
@@ -1142,7 +1163,7 @@ module.exports = class Parser {
 
             //console.log("correcto");
             this.Match();
-            this.Right_b_();
+            //this.Right_b_();
         }
         else {
             console.log("'[' was expected but " + tokenActual.type);
@@ -1157,7 +1178,7 @@ module.exports = class Parser {
 
             //console.log("correcto");
             this.Match();
-            this.Args();
+            //this.Args();
         }
         else {
             console.log("']' was expected but " + tokenActual.type);
@@ -1172,7 +1193,7 @@ module.exports = class Parser {
 
             //console.log("correcto");
             this.Match();
-            this.Right_p_();
+            //this.Right_p_();
         }
         else {
             console.log("args was expected but " + tokenActual.type);
@@ -1453,7 +1474,7 @@ module.exports = class Parser {
     If() {
         if (tokenActual.type === 'if') {
             console.log(tab + " xDxd");
-            python += this.GenTab(tab)+"if";
+            python += this.GenTab(tab) + "if";
             this.Match();
         }
         else {
@@ -1466,7 +1487,7 @@ module.exports = class Parser {
     Else() {
         if (tokenActual.type === 'else') {
             // translate
-            python += this.GenTab(tab) +tokenActual.value;
+            python += this.GenTab(tab) + tokenActual.value;
             this.Match();
         }
         else {
@@ -1594,6 +1615,8 @@ module.exports = class Parser {
 
     While() {
         if (tokenActual.type === 'while') {
+            // translate
+            python += this.GenTab(tab) + tokenActual.value;
             this.Match();
         }
         else {
@@ -1605,6 +1628,8 @@ module.exports = class Parser {
 
     For() {
         if (tokenActual.type === 'for') {
+            //translate
+            python += tokenActual.value;
             this.Match();
         }
         else {
@@ -1639,7 +1664,7 @@ module.exports = class Parser {
     Return() {
         if (tokenActual.type === 'return') {
             //transalate 
-            python += this.GenTab(tab)+tokenActual.value + " ";
+            python += this.GenTab(tab) + tokenActual.value + " ";
             this.Match();
         }
         else {
@@ -1673,6 +1698,9 @@ module.exports = class Parser {
 
     And() {
         if (tokenActual.type === 'and') {
+            //translate
+            //python += tokenActual.value;
+
             this.Match();
         }
         else {
@@ -1684,6 +1712,8 @@ module.exports = class Parser {
 
     Not() {
         if (tokenActual.type === 'not') {
+            // translate
+            python += tokenActual.value;
             this.Match();
         }
         else {
