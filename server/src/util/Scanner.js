@@ -2,7 +2,8 @@
 var Token = require('./Token');
 
 const TokenType = {
-    COMMENT: 'commentary',
+    SL_COMMENTARY: 'single line commentary',
+    ML_COMMENTARY: 'multiline commentary',
     /* Keywords */
     CLASS: 'class',
     STATIC: 'static',
@@ -119,7 +120,7 @@ module.exports = class Scanner {
                         state = 7;
                     }
                     else if (current_char === "/") {
-                        auxiliar += current_char;
+                        //auxiliar += current_char;
                         state = 1;
                     }
                     else if (current_char === "(") {
@@ -266,11 +267,11 @@ module.exports = class Scanner {
                     //console.log("I'm in state 1");
 
                     if (current_char === "/") {
-                        auxiliar += current_char;
+                        //auxiliar += current_char;
                         state = 2;
                     }
                     else if (current_char === "*") {
-                        auxiliar += current_char;
+                        //auxiliar += current_char;
                         state = 3;
                     }
 
@@ -289,7 +290,7 @@ module.exports = class Scanner {
                     }
                     else if (current_char === "\n") {
                         // Acceptation single line comment
-                        //tokenList.push(new Token(TokenType.COMMENT, auxiliar));
+                        tokenList.push(new Token(TokenType.SL_COMMENTARY, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
@@ -318,7 +319,7 @@ module.exports = class Scanner {
                         state = 3;
                     }
                     else if (current_char === "/") {
-                        auxiliar += current_char;
+                        //auxiliar += current_char;
                         state = 5;
                     }
 
@@ -342,7 +343,7 @@ module.exports = class Scanner {
                         state = 4;
                     }
                     else if (current_char === "*") {
-                        auxiliar += current_char;
+                        //auxiliar += current_char;
                         state = 3;
                     }
                     else {
@@ -355,7 +356,7 @@ module.exports = class Scanner {
 
                     // Acceptation
                     //console.log(auxiliar);
-                    //tokenList.push(new Token(TokenType.COMMENT, auxiliar));
+                    tokenList.push(new Token(TokenType.ML_COMMENTARY, auxiliar));
                     auxiliar = "";
                     state = 0;
 

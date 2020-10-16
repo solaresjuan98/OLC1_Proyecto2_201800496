@@ -62,6 +62,14 @@ module.exports = class Parser {
             this.LIST();
             //this.INSTRUCTIONS_P();
         }
+        else if (tokenActual.type === 'single line commentary') {
+            this.SL_Comment();
+            this.LIST();
+        }
+        else if (tokenActual.type === 'multiline commentary') {
+            this.ML_Comment();
+            this.LIST();
+        }
         else if (tokenActual.type == 'eof') {
             console.log('END OF FILE :v');
         }
@@ -136,8 +144,8 @@ module.exports = class Parser {
             this.S();
             //thid.INSTRUCTIONS();
         }
-        else { 
-            console.log("Error with " + tokenActual.value); 
+        else {
+            console.log("Error with " + tokenActual.value);
         }
 
 
@@ -330,6 +338,14 @@ module.exports = class Parser {
         else if (tokenActual.type === 'continue') {
             this.Continue();
             this.Semicolon();
+        }
+        else if (tokenActual.type === 'single line commentary') {
+            this.SL_Comment();
+            this.INSTRUCTIONS();
+        }
+        else if (tokenActual.type === 'multiline commentary') {
+            this.ML_Comment();
+            this.INSTRUCTIONS();
         }
         else if (tokenActual.type === 'eof') {
 
@@ -1720,6 +1736,34 @@ module.exports = class Parser {
             console.log("'!' was expected instead " + tokenActual.value);
             sintaxError = true;
             this.Match();
+        }
+    }
+
+    // commentaries
+    SL_Comment() {
+        if (tokenActual.type === 'single line commentary') {
+            // translate
+            python += this.GenTab(tab) + "##" + tokenActual.value +"\n";
+            this.Match();
+        }
+        else {
+            //console.log("'!' was expected instead " + tokenActual.value);
+            //sintaxError = true;
+            //this.Match();
+        }
+
+    }
+
+    ML_Comment() {
+        if (tokenActual.type === 'multiline commentary') {
+            // translate
+            python += this.GenTab(tab) + "\"\"\"\n";
+            python += this.GenTab(tab) + tokenActual.value;
+            python += this.GenTab(tab) + "\n\"\"\"\n";
+            this.Match();
+        }
+        else {
+
         }
     }
 
