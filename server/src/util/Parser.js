@@ -188,7 +188,7 @@ module.exports = class Parser {
             this.Left_brace();
             this.INSTRUCTIONS();
             this.Right_brace(),
-                this.S();
+            this.S();
 
         } else {
             console.log("inteface was expected instead of " + tokenActual.value);
@@ -518,12 +518,15 @@ module.exports = class Parser {
         if (tokenActual.type === 'number' || tokenActual.type === 'Identifier' || tokenActual.type === 'Left parenthesis') {
             this.EXPR();
         }
-        else if (tokenActual.type === 'text string' || tokenActual.type === 'true' || tokenActual.type === 'false') {
-            // Translate 
+        else if (tokenActual.type === 'text string') { 
             python += tokenActual.value;
             this.Match();
-
-        } else {
+        } else if (tokenActual.type === 'true') {
+            this.True();
+        } else if (tokenActual.type === 'false') {
+            this.False();
+        }
+        else {
 
             console.log("Value was expected instead " + tokenActual.value);
             sintaxError = true;
@@ -733,23 +736,22 @@ module.exports = class Parser {
 
         if (tokenActual.type === 'for') {
             this.For();
+            python += " ";
+            this.Left_parenthesis_f();
+            this.DEC_FOR();
+            this.Right_parenthesis_f();
+            this.Left_brace();
+            this.INSTRUCTIONS();
+            this.Right_brace();
+
             // cambiar parentesis por parentesis solo para for 
-            this.Left_parenthesis();
+            /*this.Left_parenthesis();
             this.DEC_FOR();
             this.Right_parenthesis();
             this.Left_brace();
             this.INSTRUCTIONS();
-            this.Right_brace();
-            /*this.EXPR();
-            this.REL();
-            this.EXPR();
-            this.Semicolon();
-            this.EXPR();
-            this.Right_parenthesis();
-            this.Left_brace();
-            this.INSTRUCTIONS();
             this.Right_brace();*/
-            //this.INSTRUCTIONS();
+
 
         }
         else {
@@ -766,6 +768,7 @@ module.exports = class Parser {
         */
         console.log('IF -- ' + tokenActual.value);
         if (tokenActual.type === 'if') {
+            python += this.GenTab(tab) + "if";
             this.If();
             this.Left_parenthesis();
             this.CONDITION();
@@ -785,24 +788,57 @@ module.exports = class Parser {
 
     }
 
+    ELSE_IF(){
+         /*
+            IF -> if ( CONDITION ) { INSTRUCTIONS } THEN
+        */
+       console.log('ELSE_IF -- ' + tokenActual.value);
+       if (tokenActual.type === 'if') {
+           python += this.GenTab(tab) + "elif";
+           this.If();
+           this.Left_parenthesis();
+           this.CONDITION();
+           this.Right_parenthesis();
+           python += ":\n";
+           this.Left_brace();
+           this.INSTRUCTIONS();
+           this.Right_brace();
+           this.THEN();
+
+       }
+       else {
+           console.log('If was expected instead of ' + tokenActual.value);
+           sintaxError = true;
+           this.Match();
+       }
+    }
+
     DEC_FOR() {
         /*
             DEC_FOR -> TYPE id = VALUE ; EXPR REL EXPR ; ID++
+
+            Sintax in python: id in range (EXP1, EXP2)
         */
         console.log("DEC_FOR -- " + tokenActual.value);
         if (tokenActual.type === 'int') {
+
+
             this.TYPE();
             this.Identifier();
-            this.Assignation();
+            python += " in range ";
+            this.Assignation_f();
+            python += "(";
             this.EXPR();
-            this.Semicolon();
+            this.Semicolon_f();
+            python += ", ";
             this.EXPR();
-            this.REL();
+            this.REL_F();
             this.EXPR();
-            this.Semicolon();
-            this.Identifier();
-            this.Plus();
-            this.Plus();
+            this.Semicolon_f();
+            this.Identifier_f();
+            this.Plus_f();
+            this.Plus_f();
+            python += "):\n";
         }
 
         else {
@@ -869,6 +905,33 @@ module.exports = class Parser {
 
     }
 
+    REL_F() {
+
+        if (tokenActual.type === 'greater than') {
+            // REL
+            this.Match();
+            //this.REL_P();
+        }
+        else if (tokenActual.type === 'greater or equal than') {
+            this.Match();
+            //this.REL_P();
+        }
+        else if (tokenActual.type === 'less than') {
+            this.Match();
+            //this.REL_P();
+        }
+        else if (tokenActual.type === 'less or equal than') {
+
+            this.Match();
+            //this.Less_than();
+            //this.REL_P();
+        } else if (tokenActual.type === 'assignation') {
+            this.Assignation_f();
+            this.REL_P();
+        }
+
+    }
+
     REL_P() {
         /**
          * REL_P -> =
@@ -884,6 +947,23 @@ module.exports = class Parser {
             //
         }
     }
+
+    REL_P_f() {
+        /**
+         * REL_P -> =
+         *        | epsilon
+         * 
+        */
+        console.log('REL_P_f -- ' + tokenActual.value);
+        if (tokenActual.type === 'assignation') {
+            this.Assignation_f();
+            this.REL_P_f();
+        } else {
+
+            //
+        }
+    }
+
 
     LOGIC() {
 
@@ -932,7 +1012,8 @@ module.exports = class Parser {
         */
         console.log('THEN_P --' + tokenActual.value);
         if (tokenActual.type === 'Left brace') {
-            python += ":\n";
+            //python += ":\n";
+            python += this.GenTab(tab) + "else:\n";
             this.Left_brace();
             this.INSTRUCTIONS();
             console.log('f ' + tokenActual.value);
@@ -941,8 +1022,9 @@ module.exports = class Parser {
 
         }
         else if (tokenActual.type === 'if') {
-
-            this.IF();
+            // else if 
+            //python += this.GenTab(tab) + "el";
+            this.ELSE_IF();
             this.INSTRUCTIONS();
         }
         else {
@@ -1261,9 +1343,6 @@ module.exports = class Parser {
         if (tokenActual.type === 'Identifier') {
             python += tokenActual.value;
             this.Match();
-
-            //transalate
-            //python += tokenActual.value;
         }
         else {
             console.log('An Identifier was expected instead of ' + tokenActual.type);
@@ -1271,6 +1350,23 @@ module.exports = class Parser {
             this.Match();
         }
     }
+
+    Identifier_f() {
+
+        //console.log("Identifier")
+        console.log(tokenActual.value, 'Identifier');
+        if (tokenActual.type === 'Identifier') {
+
+            //python += tokenActual.value;
+            this.Match();
+        }
+        else {
+            console.log('An Identifier was expected instead of ' + tokenActual.type);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
 
     Assignation() {
         if (tokenActual.type === 'assignation') {
@@ -1284,6 +1380,20 @@ module.exports = class Parser {
             this.Match();
         }
     }
+
+    Assignation_f() {
+        if (tokenActual.type === 'assignation') {
+            // translate 
+            //python += tokenActual.value;
+            this.Match();
+        }
+        else {
+            console.log("'=' was expected instead of " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
 
     Number() {
         if (tokenActual.type === 'number') {
@@ -1326,6 +1436,18 @@ module.exports = class Parser {
         }
     }
 
+    Semicolon_f() {
+        if (tokenActual.type === 'Semicolon') {
+
+            //python += "\n";
+            this.Match();
+        }
+        else {
+            console.log("';' was expected instead of " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
+        }
+    }
 
 
     Right_brace() {
@@ -1373,6 +1495,21 @@ module.exports = class Parser {
         }
     }
 
+    // For
+    Left_parenthesis_f() {
+
+        if (tokenActual.type === 'Left parenthesis') {
+            // translate
+            //python += "(";
+            this.Match();
+        }
+        else {
+            console.log("'(' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
     Right_parenthesis() {
         if (tokenActual.type === 'Right parenthesis') {
 
@@ -1388,6 +1525,25 @@ module.exports = class Parser {
             this.Match();
         }
     }
+
+    // for
+    Right_parenthesis_f() {
+        if (tokenActual.type === 'Right parenthesis') {
+
+            // translate
+            //python += ")";
+            this.Match();
+
+
+        }
+        else {
+            console.log("')' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+
 
     Comma() {
         if (tokenActual.type === 'comma') {
@@ -1489,8 +1645,8 @@ module.exports = class Parser {
 
     If() {
         if (tokenActual.type === 'if') {
-            console.log(tab + " xDxd");
-            python += this.GenTab(tab) + "if";
+            //console.log(tab + " xDxd");
+            //python += this.GenTab(tab) + "if";
             this.Match();
         }
         else {
@@ -1503,7 +1659,7 @@ module.exports = class Parser {
     Else() {
         if (tokenActual.type === 'else') {
             // translate
-            python += this.GenTab(tab) + tokenActual.value;
+            //python += this.GenTab(tab) + tokenActual.value;
             this.Match();
         }
         else {
@@ -1545,6 +1701,19 @@ module.exports = class Parser {
         if (tokenActual.type === 'plus') {
             // translate
             python += tokenActual.value;
+            this.Match();
+        }
+        else {
+            console.log("'+' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    Plus_f() {
+        if (tokenActual.type === 'plus') {
+            // translate
+            //python += tokenActual.value;
             this.Match();
         }
         else {
@@ -1645,7 +1814,7 @@ module.exports = class Parser {
     For() {
         if (tokenActual.type === 'for') {
             //translate
-            python += tokenActual.value;
+            python += this.GenTab(tab) + tokenActual.value;
             this.Match();
         }
         else {
@@ -1657,6 +1826,8 @@ module.exports = class Parser {
 
     Break() {
         if (tokenActual.type === 'break') {
+            // translate
+            python += this.GenTab(tab)+tokenActual.value;
             this.Match();
         }
         else {
@@ -1668,6 +1839,8 @@ module.exports = class Parser {
 
     Continue() {
         if (tokenActual.type === 'continue') {
+            //translate 
+            python += this.GenTab(tab)+ tokenActual.value;
             this.Match();
         }
         else {
@@ -1739,11 +1912,38 @@ module.exports = class Parser {
         }
     }
 
+    True() {
+        if (tokenActual.type === 'true') {
+            // translate
+            python += "True";
+            this.Match();
+        }
+        else {
+            console.log("'true' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+    False() {
+        if (tokenActual.type === 'false') {
+            // translate
+            python += "False"
+            this.Match();
+        }
+        else {
+            console.log("'false' was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+
     // commentaries
     SL_Comment() {
         if (tokenActual.type === 'single line commentary') {
             // translate
-            python += this.GenTab(tab) + "##" + tokenActual.value +"\n";
+            python += this.GenTab(tab) + "##" + tokenActual.value + "\n";
             this.Match();
         }
         else {
@@ -1822,6 +2022,17 @@ module.exports = class Parser {
                     this.S();
                     break;
 
+                }
+                else if (tokenActual.type === 'public') {
+                    console.log("'public' found");
+
+                    if (index < (this.tokenList.length - 1)) {
+                        sintaxError = false;
+                        index++;
+                        tokenActual = this.tokenList[index];
+                        this.LIST();
+                        break;
+                    }
                 }
                 else if (tokenActual.type === 'eof') {
                     console.log('End of file xd');
