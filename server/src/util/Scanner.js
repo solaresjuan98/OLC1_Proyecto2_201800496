@@ -69,7 +69,9 @@ const TokenType = {
     SLASH: 'slash',
     /*  others */
     TEXT_STRING: 'text string',
-    EOF: 'eof'
+    EOF: 'eof',
+    /* error */
+    LEX_ERROR: 'lex error'
 
 
 
@@ -129,84 +131,84 @@ module.exports = class Scanner {
                     else if (current_char === "(") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.LEFT_PAR, auxiliar));
+                        tokenList.push(new Token(TokenType.LEFT_PAR, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === ")") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.RIGHT_PAR, auxiliar));
+                        tokenList.push(new Token(TokenType.RIGHT_PAR, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "[") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.LEFT_BRACKET, auxiliar));
+                        tokenList.push(new Token(TokenType.LEFT_BRACKET, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "]") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.RIGHT_BRACKET, auxiliar));
+                        tokenList.push(new Token(TokenType.RIGHT_BRACKET, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "{") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.LEFT_BRACE, auxiliar));
+                        tokenList.push(new Token(TokenType.LEFT_BRACE, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "}") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.RIGHT_BRACE, auxiliar));
+                        tokenList.push(new Token(TokenType.RIGHT_BRACE, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === ".") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.POINT, auxiliar));
+                        tokenList.push(new Token(TokenType.POINT, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === ",") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.COMMA, auxiliar));
+                        tokenList.push(new Token(TokenType.COMMA, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === ";") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.SEMICOLON, auxiliar));
+                        tokenList.push(new Token(TokenType.SEMICOLON, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "=") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.ASSIGNATION, auxiliar));
+                        tokenList.push(new Token(TokenType.ASSIGNATION, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "|") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.OR, auxiliar));
+                        tokenList.push(new Token(TokenType.OR, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "&") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.AND, auxiliar));
+                        tokenList.push(new Token(TokenType.AND, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
@@ -228,35 +230,35 @@ module.exports = class Scanner {
                     else if (current_char === "^") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.XOR, auxiliar));
+                        tokenList.push(new Token(TokenType.XOR, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "+") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.PLUS, auxiliar));
+                        tokenList.push(new Token(TokenType.PLUS, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "-") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.MINUS, auxiliar));
+                        tokenList.push(new Token(TokenType.MINUS, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "*") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.ASTERISK, auxiliar));
+                        tokenList.push(new Token(TokenType.ASTERISK, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "/") {
                         auxiliar += current_char;
                         column++;
-                        tokenList.push(new Token(TokenType.SLASH, auxiliar));
+                        tokenList.push(new Token(TokenType.SLASH, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
@@ -274,19 +276,19 @@ module.exports = class Scanner {
                     else if (current_char === "\t") {
                         state = 0;
                         column += 4;
-                        //row++;
+                    } else if (current_char === " ") {
+                        column++;
                     }
                     else {
-                        //auxiliar += current_char;
-                        if (current_char !== "\n" || current_char !== "") {
-                            column++;
-                            errorList.push(current_char);
-                            auxiliar = "";
-                            state = 0;
-                        }
+
+                        // lex errors
+                        auxiliar += current_char;
+                        column++;
+                        //errorList.push(new Token(TokenType.LEX_ERROR, current_char, row, column - auxiliar.length));
+                        auxiliar = "";
+                        state = 0;
+
                     }
-
-
 
                     break;
 
@@ -324,7 +326,7 @@ module.exports = class Scanner {
                         column = 1;
                         row++;
                         // Acceptation single line comment
-                        tokenList.push(new Token(TokenType.SL_COMMENTARY, auxiliar));
+                        tokenList.push(new Token(TokenType.SL_COMMENTARY, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
                     }
@@ -402,7 +404,7 @@ module.exports = class Scanner {
 
                     // Acceptation
                     //console.log(auxiliar);
-                    tokenList.push(new Token(TokenType.ML_COMMENTARY, auxiliar));
+                    tokenList.push(new Token(TokenType.ML_COMMENTARY, auxiliar, row, column - auxiliar.length));
                     auxiliar = "";
                     state = 0;
 
@@ -426,7 +428,7 @@ module.exports = class Scanner {
                         state = 6;
                     }
                     else {
-                        this.addToken(auxiliar);
+                        this.addToken(auxiliar, row, column);
                         auxiliar = "";
                         i--;
                         state = 0;
@@ -448,7 +450,7 @@ module.exports = class Scanner {
                     }
                     else {
 
-                        tokenList.push(new Token(TokenType.NUMBER, auxiliar));
+                        tokenList.push(new Token(TokenType.NUMBER, auxiliar, row, column - auxiliar.length));
                         auxiliar = ""
                         state = 0;
                         i--;
@@ -464,8 +466,8 @@ module.exports = class Scanner {
                         state = 8;
                     }
                     else {
-                        
-                        tokenList.push(new Token(TokenType.NUMBER, auxiliar));
+
+                        tokenList.push(new Token(TokenType.NUMBER, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
 
@@ -480,7 +482,7 @@ module.exports = class Scanner {
                         auxiliar += current_char;
                     }
                     else {
-                        this.addRelationalExp(auxiliar);
+                        this.addRelationalExp(auxiliar, row, column);
                         auxiliar = "";
                         state = 0;
                         i--;
@@ -495,7 +497,7 @@ module.exports = class Scanner {
                         auxiliar += current_char;
                     }
                     else {
-                        this.addRelationalExp(auxiliar);
+                        this.addRelationalExp(auxiliar, row, column);
                         auxiliar = "";
                         state = 0;
                         i--;
@@ -510,7 +512,7 @@ module.exports = class Scanner {
                         auxiliar += current_char;
                     }
                     else {
-                        this.addRelationalExp(auxiliar);
+                        this.addRelationalExp(auxiliar, row, column);
                         auxiliar = "";
                         state = 0;
                         i--;
@@ -545,7 +547,7 @@ module.exports = class Scanner {
 
                 case 13:
 
-                    tokenList.push(new Token(TokenType.TEXT_STRING, auxiliar));
+                    tokenList.push(new Token(TokenType.TEXT_STRING, auxiliar, row, column - auxiliar.length));
                     auxiliar = "";
                     state = 0;
                     i--;
@@ -568,133 +570,133 @@ module.exports = class Scanner {
         return char.length === 1 && char.match(/[0-9]/i);
     }
 
-    addToken(str) {
+    addToken(str, row, column) {
 
         switch (str) {
 
             /* Keywords */
             case "public":
-                tokenList.push(new Token(TokenType.PUBLIC, str))
+                tokenList.push(new Token(TokenType.PUBLIC, str, row, column - str.length))
                 break;
 
             case "class":
-                tokenList.push(new Token(TokenType.CLASS, str))
+                tokenList.push(new Token(TokenType.CLASS, str, row, column - str.length))
                 break;
 
             case "static":
-                tokenList.push(new Token(TokenType.STATIC, str))
+                tokenList.push(new Token(TokenType.STATIC, str, row, column - str.length))
                 break;
 
             case "void":
-                tokenList.push(new Token(TokenType.VOID, str))
+                tokenList.push(new Token(TokenType.VOID, str, row, column - str.length))
                 break;
 
             case "interface":
-                tokenList.push(new Token(TokenType.INTERFACE, str))
+                tokenList.push(new Token(TokenType.INTERFACE, str, row, column - str.length))
                 break;
 
             case "main":
-                tokenList.push(new Token(TokenType.MAIN, str))
+                tokenList.push(new Token(TokenType.MAIN, str, row, column - str.length))
                 break;
 
             case "System":
-                tokenList.push(new Token(TokenType.SYSTEM, str))
+                tokenList.push(new Token(TokenType.SYSTEM, str, row, column - str.length))
                 break;
 
             case "out":
-                tokenList.push(new Token(TokenType.OUT, str))
+                tokenList.push(new Token(TokenType.OUT, str, row, column - str.length))
                 break;
 
             case "print":
-                tokenList.push(new Token(TokenType.PRINT, str))
+                tokenList.push(new Token(TokenType.PRINT, str, row, column - str.length))
                 break;
 
             case "println":
-                tokenList.push(new Token(TokenType.PRINTLN, str))
+                tokenList.push(new Token(TokenType.PRINTLN, str, row, column - str.length))
                 break;
 
             case "args":
-                tokenList.push(new Token(TokenType.ARGS, str))
+                tokenList.push(new Token(TokenType.ARGS, str, row, column - str.length))
                 break;
 
             /* Conditionals */
 
             case "if":
-                tokenList.push(new Token(TokenType.IF, str))
+                tokenList.push(new Token(TokenType.IF, str, row, column - str.length))
                 break;
 
             case "else":
-                tokenList.push(new Token(TokenType.ELSE, str))
+                tokenList.push(new Token(TokenType.ELSE, str, row, column - str.length))
                 break;
 
             /* Data types */
 
             case "int":
-                tokenList.push(new Token(TokenType.INT, str))
+                tokenList.push(new Token(TokenType.INT, str, row, column - str.length))
                 break;
 
             case "String":
-                tokenList.push(new Token(TokenType.STRING, str))
+                tokenList.push(new Token(TokenType.STRING, str, row, column - str.length))
                 break;
 
             case "boolean":
-                tokenList.push(new Token(TokenType.BOOLEAN, str))
+                tokenList.push(new Token(TokenType.BOOLEAN, str, row, column - str.length))
                 break;
 
             case "char":
-                tokenList.push(new Token(TokenType.CHAR, str))
+                tokenList.push(new Token(TokenType.CHAR, str, row, column - str.length))
                 break;
 
             case "float":
-                tokenList.push(new Token(TokenType.FLOAT, str))
+                tokenList.push(new Token(TokenType.FLOAT, str, row, column - str.length))
                 break;
 
             case "double":
-                tokenList.push(new Token(TokenType.DOUBLE, str))
+                tokenList.push(new Token(TokenType.DOUBLE, str, row, column - str.length))
                 break;
 
 
             /* Cycles */
 
             case "for":
-                tokenList.push(new Token(TokenType.FOR, str))
+                tokenList.push(new Token(TokenType.FOR, str, row, column - str.length))
                 break;
 
             case "do":
-                tokenList.push(new Token(TokenType.DO, str))
+                tokenList.push(new Token(TokenType.DO, str, row, column - str.length))
                 break;
 
             case "while":
-                tokenList.push(new Token(TokenType.WHILE, str))
+                tokenList.push(new Token(TokenType.WHILE, str, row, column - str.length))
                 break;
 
             /* Sentences */
 
             case "break":
-                tokenList.push(new Token(TokenType.BREAK, str))
+                tokenList.push(new Token(TokenType.BREAK, str, row, column - str.length))
                 break;
 
             case "continue":
-                tokenList.push(new Token(TokenType.CONTINUE, str))
+                tokenList.push(new Token(TokenType.CONTINUE, str, row, column - str.length))
                 break;
 
             case "return":
-                tokenList.push(new Token(TokenType.RETURN, str))
+                tokenList.push(new Token(TokenType.RETURN, str, row, column - str.length))
                 break;
 
             /* boolean statmentes */
 
             case "true":
-                tokenList.push(new Token(TokenType.TRUE, str))
+                tokenList.push(new Token(TokenType.TRUE, str, row, column - str.length))
                 break;
 
             case "false":
-                tokenList.push(new Token(TokenType.FALSE, str))
+                tokenList.push(new Token(TokenType.FALSE, str, row, column - str.length))
                 break;
 
 
             default:
-                tokenList.push(new Token(TokenType.ID, str))
+                tokenList.push(new Token(TokenType.ID, str, row, column - str.length))
                 break;
         }
 
@@ -705,37 +707,37 @@ module.exports = class Scanner {
         tokenList.push(new Token(TokenType.EOF, 'End of file'));
     }
 
-    addRelationalExp(str) {
+    addRelationalExp(str, row, column) {
 
         switch (str) {
 
             case '=':
-                tokenList.push(new Token(TokenType.ASSIGNATION, str))
+                tokenList.push(new Token(TokenType.ASSIGNATION, str, row, column - str.length))
                 break;
 
             case '==':
-                tokenList.push(new Token(TokenType.EQUAL, str))
+                tokenList.push(new Token(TokenType.EQUAL, str, row, column - str.length))
 
                 break;
 
             case '>=':
-                tokenList.push(new Token(TokenType.GREATER_OR_EQUAL_THAN, str))
+                tokenList.push(new Token(TokenType.GREATER_OR_EQUAL_THAN, str, row, column - str.length))
                 break;
 
             case '<=':
-                tokenList.push(new Token(TokenType.LESS_OR_EQUAL_THAN, str))
+                tokenList.push(new Token(TokenType.LESS_OR_EQUAL_THAN, str, row, column - str.length))
                 break;
 
             case '!=':
-                tokenList.push(new Token(TokenType.NOT, str))
+                tokenList.push(new Token(TokenType.NOT, str, row, column - str.length))
                 break;
 
             case '<':
-                tokenList.push(new Token(TokenType.LESS_THAN, str))
+                tokenList.push(new Token(TokenType.LESS_THAN, str, row, column - str.length))
                 break;
 
             case '>':
-                tokenList.push(new Token(TokenType.GREATER_THAN, str))
+                tokenList.push(new Token(TokenType.GREATER_THAN, str, row, column - str.length))
                 break;
 
             default:
@@ -767,7 +769,7 @@ module.exports = class Scanner {
 
     ReturnLexErrors() {
         errorList.forEach(element => {
-            console.log(element);
+            console.log("type: " + element.type, " --- value: " + element.value + " --- row: " + element.row + " --- column: " + row.column);
         })
     }
 }

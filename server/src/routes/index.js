@@ -26,11 +26,14 @@ router.post("/send", (req, res) => {
     const { source_code } = req.body;
 
     if (source_code) {
+
+        // lexical analysis
         var scanner = new Scanner(source_code);
         scanner.scan();
-        //console.log('Source code received');
         scanner.addEOF();
-        //console.log(scanner.ReturnLexErrors());
+       // console.log(scanner.ReturnLexErrors());
+        
+        // parser 
         var parser = new Parser(scanner.tokenList);
         //parser.getTokens();
         parser.parse();
