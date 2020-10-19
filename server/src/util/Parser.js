@@ -90,8 +90,8 @@ module.exports = class Parser {
                   | METHOD
                    
         */
-        console.log("LISTP");
-        console.log(tokenActual.type);
+        console.log("LISTP -->" + tokenActual.value);
+    
 
         if (tokenActual.type === 'static') {
 
@@ -188,7 +188,7 @@ module.exports = class Parser {
             this.Left_brace();
             this.INSTRUCTIONS();
             this.Right_brace(),
-            this.S();
+                this.S();
 
         } else {
             console.log("inteface was expected instead of " + tokenActual.value);
@@ -205,7 +205,7 @@ module.exports = class Parser {
         console.log("FUNCTION");
         console.log(tokenActual.value);
         this.TYPE();
-        python += "def ";
+        python += this.GenTab(tab)+ "def ";
         this.Identifier();
         this.PARAMETERS();
         this.INSTRUCTIONS();
@@ -246,7 +246,7 @@ module.exports = class Parser {
             this.Left_brace();
             this.INSTRUCTIONS();
             this.Right_brace();
-            this.S();
+            this.S();//cambio aqui
         }
         else {
 
@@ -262,7 +262,7 @@ module.exports = class Parser {
     LISTV() {
 
         /*
-            LISTV -> , TYPE id LIST_P
+            LISTV -> , TYPE id LISTV
                    | ) { INSTRUCTIONS }
         */
         console.log("LISTV");
@@ -282,7 +282,7 @@ module.exports = class Parser {
             this.Left_brace();
             this.INSTRUCTIONS();
             this.Right_brace();
-            this.S();
+            //this.S();
         }
 
     }
@@ -301,6 +301,10 @@ module.exports = class Parser {
         if (tokenActual.type === 'int' || tokenActual.type === 'String' || tokenActual.type === 'char' || tokenActual.type === 'boolean' || tokenActual.type === 'double') {
             this.DECLARATION();
             //this.INSTRUCTIONS_P();
+        }
+        else if(tokenActual.type === 'public'){
+            this.Public_m();
+            this.FUNCTION();//change to METHOD
         }
         else if (tokenActual.type === 'Identifier') {
             python += this.GenTab(tab);
@@ -350,7 +354,10 @@ module.exports = class Parser {
         else if (tokenActual.type === 'eof') {
 
             console.log('End of file');
+        }else{
+            
         }
+
     }
 
     INSTRUCTIONS_P() {
@@ -518,7 +525,7 @@ module.exports = class Parser {
         if (tokenActual.type === 'number' || tokenActual.type === 'Identifier' || tokenActual.type === 'Left parenthesis') {
             this.EXPR();
         }
-        else if (tokenActual.type === 'text string') { 
+        else if (tokenActual.type === 'text string') {
             python += tokenActual.value;
             this.Match();
         } else if (tokenActual.type === 'true') {
@@ -682,13 +689,15 @@ module.exports = class Parser {
     }
 
     DO() {
-
+        /*
+            do { INSTRUCTIONS } WHILE_1
+        */
         if (tokenActual.type === 'do') {
             this.Do();
             this.Left_brace();
             this.INSTRUCTIONS();
             this.Right_brace();
-            this.While();
+            this.While_2();
             this.Left_parenthesis();
             this.EXPR();
             this.LOGIC();
@@ -788,29 +797,29 @@ module.exports = class Parser {
 
     }
 
-    ELSE_IF(){
-         /*
-            IF -> if ( CONDITION ) { INSTRUCTIONS } THEN
-        */
-       console.log('ELSE_IF -- ' + tokenActual.value);
-       if (tokenActual.type === 'if') {
-           python += this.GenTab(tab) + "elif";
-           this.If();
-           this.Left_parenthesis();
-           this.CONDITION();
-           this.Right_parenthesis();
-           python += ":\n";
-           this.Left_brace();
-           this.INSTRUCTIONS();
-           this.Right_brace();
-           this.THEN();
+    ELSE_IF() {
+        /*
+           IF -> if ( CONDITION ) { INSTRUCTIONS } THEN
+       */
+        console.log('ELSE_IF -- ' + tokenActual.value);
+        if (tokenActual.type === 'if') {
+            python += this.GenTab(tab) + "elif";
+            this.If();
+            this.Left_parenthesis();
+            this.CONDITION();
+            this.Right_parenthesis();
+            python += ":\n";
+            this.Left_brace();
+            this.INSTRUCTIONS();
+            this.Right_brace();
+            this.THEN();
 
-       }
-       else {
-           console.log('If was expected instead of ' + tokenActual.value);
-           sintaxError = true;
-           this.Match();
-       }
+        }
+        else {
+            console.log('If was expected instead of ' + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
     }
 
     DEC_FOR() {
@@ -1175,6 +1184,23 @@ module.exports = class Parser {
             //console.log("correcto");
             this.Match();
             this.LISTP();
+        }
+        else {
+            console.log("public was expected but " + tokenActual.type);
+            sintaxError = true;
+            this.Match();
+
+        }
+    }
+
+    //for method
+    Public_m() {
+
+        if (tokenActual.type === 'public') {
+
+            //console.log("correcto");
+            this.Match();
+            //this.LISTP();
         }
         else {
             console.log("public was expected but " + tokenActual.type);
@@ -1811,6 +1837,20 @@ module.exports = class Parser {
         }
     }
 
+    While_2() {
+        if (tokenActual.type === 'while') {
+            // translate
+            //python += this.GenTab(tab) + tokenActual.value;
+            this.Match();
+        }
+        else {
+            console.log("while was expected instead " + tokenActual.value);
+            sintaxError = true;
+            this.Match();
+        }
+    }
+
+
     For() {
         if (tokenActual.type === 'for') {
             //translate
@@ -1827,7 +1867,7 @@ module.exports = class Parser {
     Break() {
         if (tokenActual.type === 'break') {
             // translate
-            python += this.GenTab(tab)+tokenActual.value;
+            python += this.GenTab(tab) + tokenActual.value;
             this.Match();
         }
         else {
@@ -1840,7 +1880,7 @@ module.exports = class Parser {
     Continue() {
         if (tokenActual.type === 'continue') {
             //translate 
-            python += this.GenTab(tab)+ tokenActual.value;
+            python += this.GenTab(tab) + tokenActual.value;
             this.Match();
         }
         else {
@@ -2027,9 +2067,9 @@ module.exports = class Parser {
                     console.log("'public' found");
 
                     if (index < (this.tokenList.length - 1)) {
-                        sintaxError = false;
                         index++;
                         tokenActual = this.tokenList[index];
+                        sintaxError = false;
                         this.LIST();
                         break;
                     }

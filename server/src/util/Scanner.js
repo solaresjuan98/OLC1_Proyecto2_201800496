@@ -78,6 +78,8 @@ const TokenType = {
 var tokenList = [];
 var errorList = [];
 var row = 1;
+var column = 1;
+
 // Scanner Java 
 module.exports = class Scanner {
     constructor(text) {
@@ -85,6 +87,7 @@ module.exports = class Scanner {
         tokenList = []; // cleaning
         this.tokenList = tokenList;
         row = 1;
+        column = 1;
 
     }
 
@@ -95,9 +98,6 @@ module.exports = class Scanner {
         source_code = this.text;
         let current_char = '';
         let state = 0;
-
-        var column = 1;
-
 
 
         for (let i = 0; i < source_code.length; i++) {
@@ -113,146 +113,173 @@ module.exports = class Scanner {
 
                     if (this.isLetter(current_char)) {
                         auxiliar += current_char;
+                        column++;
                         state = 6;
                     }
                     else if (this.isNumber(current_char)) {
                         auxiliar += current_char;
+                        column++;
                         state = 7;
                     }
                     else if (current_char === "/") {
                         //auxiliar += current_char;
+                        column++;
                         state = 1;
                     }
                     else if (current_char === "(") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.LEFT_PAR, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === ")") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.RIGHT_PAR, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "[") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.LEFT_BRACKET, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "]") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.RIGHT_BRACKET, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "{") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.LEFT_BRACE, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "}") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.RIGHT_BRACE, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === ".") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.POINT, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === ",") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.COMMA, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === ";") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.SEMICOLON, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "=") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.ASSIGNATION, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "|") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.OR, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "&") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.AND, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === ">") {
                         auxiliar += current_char;
+                        column++;
                         state = 9;
                     }
                     else if (current_char === "<") {
                         auxiliar += current_char;
+                        column++;
                         state = 9;
                     }
                     else if (current_char === "!") {
                         auxiliar += current_char;
+                        column++;
                         state = 9;
                     }
                     else if (current_char === "^") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.XOR, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "+") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.PLUS, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "-") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.MINUS, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "*") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.ASTERISK, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "/") {
                         auxiliar += current_char;
+                        column++;
                         tokenList.push(new Token(TokenType.SLASH, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else if (current_char === "\"") {
                         auxiliar += current_char;
+                        column++;
                         state = 12;
                     }
                     // others
                     else if (current_char === "\n") {
                         state = 0;
+                        column = 1;
                         row++;
                     }
                     else if (current_char === "\t") {
                         state = 0;
+                        column += 4;
                         //row++;
                     }
                     else {
                         //auxiliar += current_char;
                         if (current_char !== "\n" || current_char !== "") {
+                            column++;
                             errorList.push(current_char);
                             auxiliar = "";
                             state = 0;
@@ -268,10 +295,12 @@ module.exports = class Scanner {
 
                     if (current_char === "/") {
                         //auxiliar += current_char;
+                        column++;
                         state = 2;
                     }
                     else if (current_char === "*") {
                         //auxiliar += current_char;
+                        column++;
                         state = 3;
                     }
 
@@ -280,21 +309,27 @@ module.exports = class Scanner {
                 case 2:
                     //console.log("I'm in state 2");
                     if (this.isLetter(current_char)) {
+                        column++;
                         auxiliar += current_char;
                     }
                     else if (this.isNumber(current_char)) {
+                        column++;
                         auxiliar += current_char;
                     }
                     else if (current_char === " ") {
+                        column++;
                         auxiliar += current_char;
                     }
                     else if (current_char === "\n") {
+                        column = 1;
+                        row++;
                         // Acceptation single line comment
                         tokenList.push(new Token(TokenType.SL_COMMENTARY, auxiliar));
                         auxiliar = "";
                         state = 0;
                     }
                     else {
+                        column++;
                         auxiliar += current_char;
                     }
 
@@ -303,22 +338,27 @@ module.exports = class Scanner {
                 case 3:
 
                     if (this.isLetter(current_char)) {
+                        column++;
                         auxiliar += current_char;
                         state = 4;
                     }
                     else if (this.isNumber(current_char)) {
+                        column++;
                         auxiliar += current_char;
                         state = 4;
                     }
                     else if (current_char === "\n") {
+                        column = 1;
                         auxiliar += current_char;
                         state = 4;
                     }
                     else if (current_char === "*") {
+                        column++;
                         auxiliar += current_char;
                         state = 3;
                     }
                     else if (current_char === "/") {
+                        column++;
                         //auxiliar += current_char;
                         state = 5;
                     }
@@ -327,26 +367,32 @@ module.exports = class Scanner {
 
                 case 4:
                     if (this.isLetter(current_char)) {
+                        column++;
                         auxiliar += current_char;
                         state = 4;
                     }
                     else if (this.isNumber(current_char)) {
+                        column++;
                         auxiliar += current_char;
                         state = 4;
                     }
                     else if (current_char === "\n" || current_char === "\t") {
+                        column = 1;
                         auxiliar += current_char;
                         state = 4;
                     }
                     else if (current_char === " ") {
+                        column++;
                         auxiliar += current_char;
                         state = 4;
                     }
                     else if (current_char === "*") {
+                        column++;
                         //auxiliar += current_char;
                         state = 3;
                     }
                     else {
+                        column++;
                         auxiliar += current_char;
                     }
 
@@ -365,15 +411,17 @@ module.exports = class Scanner {
                 case 6:
 
                     if (this.isLetter(current_char)) {
-                        //console.log("Is a letter -> ", current_char);
+                        column++;
                         auxiliar += current_char;
                         state = 6;
                     }
                     else if (this.isNumber(current_char)) {
+                        column++;
                         auxiliar += current_char;
                         state = 6;
                     }
                     else if (current_char === "_") {
+                        column++;
                         auxiliar += current_char;
                         state = 6;
                     }
@@ -388,15 +436,18 @@ module.exports = class Scanner {
                 case 7:
 
                     if (this.isNumber(current_char)) {
+                        column++;
                         //console.log("Is a number -> ", current_char)
                         auxiliar += current_char;
                         state = 7;
                     }
                     else if (current_char === ".") {
+                        column++;
                         auxiliar += current_char;
                         state = 8;
                     }
                     else {
+
                         tokenList.push(new Token(TokenType.NUMBER, auxiliar));
                         auxiliar = ""
                         state = 0;
@@ -408,10 +459,12 @@ module.exports = class Scanner {
                 case 8:
 
                     if (this.isNumber(current_char)) {
+                        column++;
                         auxiliar += current_char;
                         state = 8;
                     }
                     else {
+                        
                         tokenList.push(new Token(TokenType.NUMBER, auxiliar));
                         auxiliar = "";
                         state = 0;
@@ -423,6 +476,7 @@ module.exports = class Scanner {
                 case 9:
 
                     if (current_char === "=") {
+                        column++;
                         auxiliar += current_char;
                     }
                     else {
@@ -437,6 +491,7 @@ module.exports = class Scanner {
                 case 10:
 
                     if (current_char === "+") {
+                        column++;
                         auxiliar += current_char;
                     }
                     else {
@@ -451,6 +506,7 @@ module.exports = class Scanner {
                 case 11:
 
                     if (current_char === "-") {
+                        column++;
                         auxiliar += current_char;
                     }
                     else {
@@ -465,18 +521,22 @@ module.exports = class Scanner {
                 case 12:
 
                     if (this.isLetter(current_char)) {
+                        column++;
                         auxiliar += current_char;
                         state = 12;
                     }
                     else if (this.isNumber(current_char)) {
+                        column++;
                         auxiliar += current_char;
                         state = 12;
                     }
                     else if (current_char === "\"") {
+                        column++;
                         auxiliar += current_char;
                         state = 13;
                     }
                     else {
+                        column++;
                         auxiliar += current_char;
                         state = 12;
                     }
