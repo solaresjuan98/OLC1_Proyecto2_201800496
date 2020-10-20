@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="css/index.css"/>
+        <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+
+        <script src="./codemirror/lib/codemirror.js"></script>
+        <link rel="stylesheet" href="./codemirror//lib//codemirror.css">
+        <link rel="stylesheet" href="./codemirror//theme//eclipse.css">
+        <script src="./codemirror/mode/clike/clike.js"></script>
+        <title>Proyecto2</title>
+    </head>
+    <body>
+        <div class="contenedor">
+            <input id="fileInput" title="Abrir" type="file" size="50" onchange="AbrirArchivo(this.files)" class="btnp">
+            <button onclick="DescargarArchivo();" id="guardar" title="Guardar" class="btnp">Guardar</button>
+            <button onclick="agregar();" title="AgregarPestana" id="btn4" class="btnp">Agregar Pestana</button>
+            <button onclick="quitar();" title="QuitarPestana" id="btn5" class="btnp">Quitar Pestana</button>
+            <button onclick="AnalizarArchivo();" title="AnalizarArchivo" id="btn6" class="btnp">Analizar</button>
+            <button onclick="LimpiarForm();" title="LimpiarForm" id="btn7" class="btnp">Limpiar</button>
+            <button id="btn5" class="btnp">Guardar .py</button>
+            <button id="btn5" class="btnp">Guardar .js</button>
+
+            <div id="pestanas">
+                <ul id=lista>
+                </ul>
+            </div>
+
+            <body>
+                <div id="contenidopestanas">
+                </div>
+            </body>
+        </div>
+    </body>
+    <script type="text/javascript" src="js/index.js"></script>
+</html>

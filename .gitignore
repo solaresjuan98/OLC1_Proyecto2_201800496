@@ -2,3 +2,7 @@ server/node_modules
 files
 *py
 server/result
+go/codemirror
+go/css
+go/js
+*java

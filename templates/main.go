@@ -13,12 +13,13 @@ func main() {
 }
 
 func show(w http.ResponseWriter, r *http.Request) {
-	title := Title{"Proyecto", "juan"}
+	//title := Title{"Proyecto", "juan"}
 	template, _ := template.ParseFiles("index.html")
-	template.Execute(w, title)
+	template.Execute(w, "Proyecto")
 
 }
 
+/*
 type Title struct {
 	fTitle, fname string
-}
+}*/

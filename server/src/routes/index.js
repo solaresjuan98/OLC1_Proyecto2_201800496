@@ -1,4 +1,4 @@
-const { Router } = require('express')
+const { Router, response } = require('express')
 const router = Router();
 var Scanner = require('../util/Scanner');
 var Parser = require('../util/Parser');
@@ -18,7 +18,7 @@ router.get('/test', (req, res) => {
 
     ];
 
-    res.json(data[1].name);
+    res.json(data);
 });
 
 router.post("/send", (req, res) => {
@@ -48,7 +48,12 @@ router.post("/send", (req, res) => {
 
 })
 
+router.post("/data", (req, res) => {
 
+    const {data} =  req.body;
+
+    res.json(req.body);
+})
 
 
 module.exports = router;

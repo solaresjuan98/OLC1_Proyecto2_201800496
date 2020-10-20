@@ -2128,7 +2128,7 @@ module.exports = class Parser {
     SL_Comment() {
         if (tokenActual.type === 'single line commentary') {
             // translate
-            python += this.GenTab(tab) + "##" + tokenActual.value + "\n";
+            python += this.GenTab(tab) + "# " + tokenActual.value + "\n";
             this.Match();
         }
         else {
