@@ -2,6 +2,7 @@ const { Router, response } = require('express')
 const router = Router();
 var Scanner = require('../util/Scanner');
 var Parser = require('../util/Parser');
+var list = [];
 
 router.get('/test', (req, res) => {
     //res.send({"Entry": "text entry"});
@@ -31,13 +32,13 @@ router.post("/send", (req, res) => {
         var scanner = new Scanner(source_code);
         scanner.scan();
         scanner.addEOF();
-       // console.log(scanner.ReturnLexErrors());
+        console.log(scanner.ReturnLexErrors());
         
         // parser 
         var parser = new Parser(scanner.tokenList);
-        //parser.getTokens();
-        parser.parse();
-        parser.WriteFile();
+        parser.getTokens();
+        //parser.parse();
+        //parser.WriteFile();
         res.status(200);
         res.end();
 
@@ -55,5 +56,11 @@ router.post("/data", (req, res) => {
     res.json(req.body);
 })
 
+router.get("/report", (req, res) => {
+
+    res.json(list);
+
+
+})
 
 module.exports = router;

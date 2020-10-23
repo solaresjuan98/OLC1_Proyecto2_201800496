@@ -71,31 +71,40 @@
     recoverable: (boolean: TRUE when the parser has a error recovery rule available for this particular error)
   }
 */
-var gramatica = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,6],$V1=[1,3],$V2=[1,5],$V3=[1,8],$V4=[1,7],$V5=[1,9],$V6=[1,10],$V7=[1,17],$V8=[1,16],$V9=[2,17],$Va=[2,5,9,22,33,34,35],$Vb=[1,43],$Vc=[1,44],$Vd=[1,42],$Ve=[2,5,9,17,22,28,33,34,35],$Vf=[1,48],$Vg=[2,11],$Vh=[2,31],$Vi=[1,52],$Vj=[1,53],$Vk=[31,39,40],$Vl=[2,35],$Vm=[1,55],$Vn=[1,56],$Vo=[31,39,40,43,44];
+var grammar = (function(){
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[2,5,9],$V1=[1,19],$V2=[1,20],$V3=[2,14],$V4=[1,21],$V5=[1,32],$V6=[1,31],$V7=[2,9,20],$V8=[1,54],$V9=[1,52],$Va=[1,53],$Vb=[1,56],$Vc=[1,55],$Vd=[2,14,18,32,33,34,35],$Ve=[1,61],$Vf=[1,62];
 var parser = {trace: function trace () { },
 yy: {},
-symbols_: {"error":2,"S":3,"LIST":4,"token_public":5,"LISTP":6,"TYPE":7,"DECLARATION":8,"EOF":9,"token_static":10,"MAINP":11,"token_class":12,"CLASS_DEF":13,"token_interface":14,"INTERFACE_DEF":15,"INSTRUCTIONS":16,"token_Identifier":17,"ASSIGNATION":18,"token_void":19,"token_main":20,"token_left_parenthesis":21,"token_string":22,"token_left_bracket":23,"token_right_bracket":24,"token_args":25,"token_right_parenthesis":26,"token_left_brace":27,"token_right_brace":28,"token_equal":29,"EXPR":30,"token_semicolon":31,"VALUE":32,"token_int":33,"token_char":34,"token_boolean":35,"E":36,"T":37,"EP":38,"token_plus":39,"token_minus":40,"F":41,"TP":42,"token_asterisk":43,"token_slash":44,"token_number":45,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"token_public",9:"EOF",10:"token_static",12:"token_class",14:"token_interface",17:"token_Identifier",19:"token_void",20:"token_main",21:"token_left_parenthesis",22:"token_string",23:"token_left_bracket",24:"token_right_bracket",25:"token_args",26:"token_right_parenthesis",27:"token_left_brace",28:"token_right_brace",29:"token_equal",31:"token_semicolon",33:"token_int",34:"token_char",35:"token_boolean",39:"token_plus",40:"token_minus",43:"token_asterisk",44:"token_slash",45:"token_number"},
-productions_: [0,[3,1],[4,3],[4,3],[4,1],[4,2],[6,2],[6,2],[6,2],[16,3],[16,2],[16,0],[11,10],[11,2],[13,4],[13,2],[15,3],[15,2],[8,4],[8,2],[18,3],[32,1],[32,2],[7,1],[7,1],[7,1],[7,1],[30,1],[36,2],[38,3],[38,3],[38,0],[37,2],[42,3],[42,3],[42,0],[41,1],[41,1],[41,3]],
+symbols_: {"error":2,"S":3,"LIST":4,"EOF":5,"CLASSLIST":6,"INTERFACELIST":7,"MAIN_METHOD":8,"token_public":9,"token_static":10,"token_void":11,"token_main":12,"token_left_parenthesis":13,"token_string":14,"token_left_bracket":15,"token_right_bracket":16,"token_args":17,"token_right_parenthesis":18,"token_left_brace":19,"token_right_brace":20,"CLASS":21,"token_class":22,"token_Identifier":23,"METHOD_LIST":24,"INTERFACE":25,"token_interface":26,"METHOD_DEF":27,"METHOD_DATA_TYPE":28,"PARAMETERS_LIST":29,"PARAMETER":30,"DATA_TYPE":31,"token_comma":32,"token_int":33,"token_char":34,"token_double":35,"token_semicolon":36,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"EOF",9:"token_public",10:"token_static",11:"token_void",12:"token_main",13:"token_left_parenthesis",14:"token_string",15:"token_left_bracket",16:"token_right_bracket",17:"token_args",18:"token_right_parenthesis",19:"token_left_brace",20:"token_right_brace",22:"token_class",23:"token_Identifier",26:"token_interface",32:"token_comma",33:"token_int",34:"token_char",35:"token_double",36:"token_semicolon"},
+productions_: [0,[3,2],[4,1],[4,1],[4,1],[4,1],[8,12],[6,2],[6,1],[21,6],[21,2],[7,2],[7,1],[25,5],[25,1],[27,8],[27,2],[24,2],[24,1],[29,2],[29,1],[29,1],[30,2],[30,3],[30,2],[28,1],[28,1],[28,1],[28,1],[31,1],[31,1],[31,1],[31,1],[31,2]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
 var $0 = $$.length - 1;
 switch (yystate) {
-case 5: case 15: case 17:
-console.log(" >> Sintax error on line: " + this._$.first_line + " on column:  " + this._$.first_column);
+case 10:
+console.log(" (CLASS) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");
 break;
-case 13:
-console.log(" + Sintax error on line: " + this._$.first_line + " on column:  " + this._$.first_column);
+case 14:
+console.log(" (INTERFACE) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");
 break;
-case 19: case 22:
-console.log(" - Sintax error on line: " + this._$.first_line + " on column:  " + this._$.first_column);
+case 16:
+console.log(" (METHOD_DEF) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");
+break;
+case 21:
+console.log(" (PARAMETERS_LIST) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");
+break;
+case 24:
+console.log(" (PAREMETER) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");
+break;
+case 33:
+console.log(" (DATA_TYPE) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");
 break;
 }
 },
-table: [{2:$V0,3:1,4:2,5:$V1,7:4,9:$V2,22:$V3,33:$V4,34:$V5,35:$V6},{1:[3]},{1:[2,1]},{6:11,10:[1,12],12:[1,13],14:[1,14]},{2:$V7,8:15,17:$V8},{1:[2,4]},{9:[1,18]},o($V9,[2,23]),o($V9,[2,24]),o($V9,[2,25]),o($V9,[2,26]),{2:$V0,4:19,5:$V1,7:4,9:$V2,22:$V3,33:$V4,34:$V5,35:$V6},{2:[1,22],11:20,19:[1,21]},{2:[1,25],13:23,17:[1,24]},{2:[1,28],15:26,17:[1,27]},{2:$V0,4:29,5:$V1,7:4,9:$V2,22:$V3,33:$V4,34:$V5,35:$V6},{29:[1,30]},{31:[1,31]},{1:[2,5]},{1:[2,2]},o($Va,[2,6]),{20:[1,32]},{28:[1,33]},o($Va,[2,7]),{27:[1,34]},{28:[1,35]},o($Va,[2,8]),{27:[1,36]},{28:[1,37]},{1:[2,3]},{17:$Vb,21:$Vc,30:38,36:39,37:40,41:41,45:$Vd},o($Ve,[2,19]),{21:[1,45]},o($Va,[2,13]),{7:47,16:46,17:$Vf,22:$V3,28:$Vg,33:$V4,34:$V5,35:$V6},o($Va,[2,15]),{28:[1,49]},o($Va,$V9),{31:[1,50]},{31:[2,27]},{31:$Vh,38:51,39:$Vi,40:$Vj},o($Vk,$Vl,{42:54,43:$Vm,44:$Vn}),o($Vo,[2,36]),o($Vo,[2,37]),{17:[1,57]},{22:[1,58]},{28:[1,59]},{2:$V7,8:60,17:$V8},{18:61,29:[1,62]},o($Va,[2,16]),o($Ve,[2,18]),{31:[2,28]},{17:$Vb,21:$Vc,37:63,41:41,45:$Vd},{17:$Vb,21:$Vc,37:64,41:41,45:$Vd},o($Vk,[2,32]),{17:$Vb,21:$Vc,41:65,45:$Vd},{17:$Vb,21:$Vc,41:66,45:$Vd},{26:[1,67]},{23:[1,68]},o($Va,[2,14]),{7:47,16:69,17:$Vf,22:$V3,28:$Vg,33:$V4,34:$V5,35:$V6},{28:[2,10]},{17:$Vb,21:$Vc,30:70,36:39,37:40,41:41,45:$Vd},{31:$Vh,38:71,39:$Vi,40:$Vj},{31:$Vh,38:72,39:$Vi,40:$Vj},o($Vk,$Vl,{42:73,43:$Vm,44:$Vn}),o($Vk,$Vl,{42:74,43:$Vm,44:$Vn}),o($Vo,[2,38]),{24:[1,75]},{28:[2,9]},{31:[1,76]},{31:[2,29]},{31:[2,30]},o($Vk,[2,33]),o($Vk,[2,34]),{25:[1,77]},{28:[2,20]},{26:[1,78]},{27:[1,79]},{28:[1,80]},o($Va,[2,12])],
-defaultActions: {2:[2,1],5:[2,4],18:[2,5],19:[2,2],29:[2,3],39:[2,27],51:[2,28],61:[2,10],69:[2,9],71:[2,29],72:[2,30],76:[2,20]},
+table: [{2:[1,10],3:1,4:2,5:[1,6],6:3,7:4,8:5,9:[1,9],21:7,25:8},{1:[3]},{5:[1,11]},{2:[1,14],5:[2,2],9:[1,13],21:12},{2:[1,17],5:[2,3],9:[1,16],25:15},{5:[2,4]},{5:[2,5]},o($V0,[2,8]),o($V0,[2,12]),{10:[1,18],22:$V1,26:$V2},o($V0,$V3,{20:$V4}),{1:[2,1]},o($V0,[2,7]),{22:$V1},{20:$V4},o($V0,[2,11]),{26:$V2},o($V0,$V3),{11:[1,22]},{23:[1,23]},{23:[1,24]},o($V0,[2,10]),{12:[1,25]},{19:[1,26]},{19:[1,27]},{13:[1,28]},{2:$V5,9:$V6,24:29,27:30},{20:[1,33]},{14:[1,34]},{2:$V5,9:$V6,20:[1,35],27:36},o($V7,[2,18]),{11:[1,40],14:[1,39],28:37,33:[1,38],34:[1,41]},{20:[1,42]},o($V0,[2,13]),{15:[1,43]},o($V0,[2,9]),o($V7,[2,17]),{23:[1,44]},{23:[2,25]},{23:[2,26]},{23:[2,27]},{23:[2,28]},o($V7,[2,16]),{16:[1,45]},{13:[1,46]},{17:[1,47]},{2:[1,50],14:$V8,29:48,30:49,31:51,32:$V9,33:$Va,34:$Vb,35:$Vc},{18:[1,57]},{2:[1,60],14:$V8,18:[1,58],30:59,31:51,32:$V9,33:$Va,34:$Vb,35:$Vc},o($Vd,[2,20]),o($Vd,[2,21],{20:$Ve,36:$Vf}),{23:[1,63]},{2:[1,65],14:$V8,31:64,33:$Va,34:$Vb,35:$Vc},{23:[2,29]},{23:[2,30]},{23:[2,31]},{23:[2,32]},{19:[1,66]},{19:[1,67]},o($Vd,[2,19]),{20:$Ve,36:$Vf},o($Vd,[2,24]),{23:[2,33]},o($Vd,[2,22]),{23:[1,68]},{36:$Vf},{20:[1,69]},{20:[1,70]},o($Vd,[2,23]),{5:[2,6]},o($V7,[2,15])],
+defaultActions: {5:[2,4],6:[2,5],11:[2,1],38:[2,25],39:[2,26],40:[2,27],41:[2,28],53:[2,29],54:[2,30],55:[2,31],56:[2,32],62:[2,33],69:[2,6]},
 parseError: function parseError (str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -673,13 +682,13 @@ var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
 case 0:/* blank spaces */
 break;
-case 1: return 5;
+case 1: return 9;
 break;
-case 2: return 12;
+case 2: return 22;
 break;
 case 3: return 10;
 break;
-case 4: return 19;
+case 4: return 11;
 break;
 case 5: return 'token_if';
 break;
@@ -691,70 +700,72 @@ case 8: return 'token_do';
 break;
 case 9: return 'token_while';
 break;
-case 10: return 25;
+case 10: return 17;
 break;
 case 11: return 'token_true';
 break;
 case 12: return 'token_false';
 break;
-case 13: return 14;
+case 13: return 26;
 break;
-case 14: return 20;
+case 14: return 12;
 break;
-case 15: return 22;
+case 15: return 14;
 break;
 case 16: return 33;
 break;
 case 17: return 34;
 break;
-case 18: return 35;
+case 18: return 'token_boolean';
 break;
-case 19: return 27;
+case 19: return 35;
 break;
-case 20: return 28;
+case 20: return 19;
 break;
-case 21: return 21;
+case 21: return 20;
 break;
-case 22: return 26;
+case 22: return 13;
 break;
-case 23: return 23;
+case 23: return 18;
 break;
-case 24: return 24;
+case 24: return 15;
 break;
-case 25: return 39;
+case 25: return 16;
 break;
-case 26: return 40;
+case 26: return 'token_plus';
 break;
-case 27: return 43;
+case 27: return 'token_minus';
 break;
-case 28: return 44;
+case 28: return 'token_asterisk';
 break;
-case 29: return 29;
+case 29: return 'token_slash';
 break;
-case 30: return 31;
+case 30: return 'token_equal';
 break;
-case 31: return 'token_comma';
+case 31: return 36;
 break;
-case 32: return 'token_point';
+case 32: return 32;
 break;
-case 33:return 'string';
+case 33: return 'token_point';
 break;
-case 34: return 45;
+case 34:return 'string';
 break;
-case 35: return 'token_decimal';
+case 35: return 'token_number';
 break;
-case 36: return 17;
+case 36: return 'token_decimal';
 break;
-case 37:/* ignore this */
+case 37: return 23;
 break;
-case 38: return 9;
+case 38:/* ignore this */
 break;
-case 39: console.log('Lexical error: ' + yy_.yytext + ' in line: ' + yy_.yylloc.first_line + ' , in column: ' + yy_.yylloc.first_column); 
+case 39: return 5;
+break;
+case 40: console.log('Lexical error: ' + yy_.yytext + ' in line: ' + yy_.yylloc.first_line + ' , in column: ' + yy_.yylloc.first_column); 
 break;
 }
 },
-rules: [/^(?:\s+)/,/^(?:public\b)/,/^(?:class\b)/,/^(?:static\b)/,/^(?:void\b)/,/^(?:if\b)/,/^(?:else\b)/,/^(?:for\b)/,/^(?:do\b)/,/^(?:while\b)/,/^(?:args\b)/,/^(?:true\b)/,/^(?:false\b)/,/^(?:interface\b)/,/^(?:main\b)/,/^(?:String\b)/,/^(?:int\b)/,/^(?:char\b)/,/^(?:boolean\b)/,/^(?:\{)/,/^(?:\})/,/^(?:\()/,/^(?:\))/,/^(?:\[)/,/^(?:\])/,/^(?:\+)/,/^(?:-)/,/^(?:\*)/,/^(?:\/)/,/^(?:=)/,/^(?:;)/,/^(?:,)/,/^(?:\.)/,/^(?:["][a-zA-Z][a-zA-Z0-9_]*[""])/,/^(?:[0-9]+\b)/,/^(?:[0-9]+(\.[0-9]+)?\b)/,/^(?:[a-zA-Z][a-zA-Z0-9_]*)/,/^(?:[ \t\r\n\f]+)/,/^(?:$)/,/^(?:.)/],
-conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39],"inclusive":true}}
+rules: [/^(?:\s+)/,/^(?:public\b)/,/^(?:class\b)/,/^(?:static\b)/,/^(?:void\b)/,/^(?:if\b)/,/^(?:else\b)/,/^(?:for\b)/,/^(?:do\b)/,/^(?:while\b)/,/^(?:args\b)/,/^(?:true\b)/,/^(?:false\b)/,/^(?:interface\b)/,/^(?:main\b)/,/^(?:String\b)/,/^(?:int\b)/,/^(?:char\b)/,/^(?:boolean\b)/,/^(?:double\b)/,/^(?:\{)/,/^(?:\})/,/^(?:\()/,/^(?:\))/,/^(?:\[)/,/^(?:\])/,/^(?:\+)/,/^(?:-)/,/^(?:\*)/,/^(?:\/)/,/^(?:=)/,/^(?:;)/,/^(?:,)/,/^(?:\.)/,/^(?:["][a-zA-Z][a-zA-Z0-9_]*[""])/,/^(?:[0-9]+\b)/,/^(?:[0-9]+(\.[0-9]+)?\b)/,/^(?:[a-zA-Z][a-zA-Z0-9_]*)/,/^(?:[ \t\r\n\f]+)/,/^(?:$)/,/^(?:.)/],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40],"inclusive":true}}
 });
 return lexer;
 })();
@@ -768,9 +779,9 @@ return new Parser;
 
 
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
-exports.parser = gramatica;
-exports.Parser = gramatica.Parser;
-exports.parse = function () { return gramatica.parse.apply(gramatica, arguments); };
+exports.parser = grammar;
+exports.Parser = grammar.Parser;
+exports.parse = function () { return grammar.parse.apply(grammar, arguments); };
 exports.main = function commonjsMain (args) {
     if (!args[1]) {
         console.log('Usage: '+args[0]+' FILE');

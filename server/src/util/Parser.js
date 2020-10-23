@@ -2224,7 +2224,7 @@ module.exports = class Parser {
                     }
                 }
                 else if (tokenActual.type === 'eof') {
-                    console.log('End of file xd -------------------');
+                    console.log('End of file xdD -------------------');
                     sintaxError = false;
                     //index--;
                     break;

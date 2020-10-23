@@ -87,6 +87,7 @@ module.exports = class Scanner {
     constructor(text) {
         this.text = text;
         tokenList = []; // cleaning
+        errorList = [];
         this.tokenList = tokenList;
         row = 1;
         column = 1;
@@ -284,7 +285,7 @@ module.exports = class Scanner {
                         // lex errors
                         auxiliar += current_char;
                         column++;
-                        //errorList.push(new Token(TokenType.LEX_ERROR, current_char, row, column - auxiliar.length));
+                        errorList.push(new Token(TokenType.LEX_ERROR, current_char, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
 

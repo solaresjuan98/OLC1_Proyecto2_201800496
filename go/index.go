@@ -1,20 +1,49 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 )
+
+var nodeURL = ""
 
 func main() {
 
+	nodeip, defip := os.LookupEnv("NODEIP")
+	nodeport, defport := os.LookupEnv("NODEPORT")
+
+	if !defip {
+		nodeip = "182.18.7.7"
+	}
+
+	if !defport {
+		nodeport = "5000"
+	}
+
+	nodeURL = "http://" + nodeip + ":" + nodeport
+
+	ip, defip := os.LookupEnv("GOIP")
+	port, defport := os.LookupEnv("GOPORT")
+
+	if !defip {
+		ip = "182.18.7.9"
+	}
+
+	if !defport {
+		port = "3000"
+	}
+
+	// Handle js, css and condemirror files
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css/"))))
 	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("js/"))))
 	http.Handle("/codemirror/", http.StripPrefix("/codemirror/", http.FileServer(http.Dir("codemirror/"))))
-	//http.Handle("/go/", http.StripPrefix("/go/", http.FileServer(http.Dir("go/"))))
-
-	//http.Handle("/go/", http.FileServer(http.Dir("/jquery-1.7.2.min.js")))
 
 	http.HandleFunc("/", showFront)
+
+	fmt.Println(" Listening on IP:" + ip + " and PORT:" + port)
+	fmt.Println(nodeURL)
 	http.ListenAndServe(":3000", nil)
 
 	/*
