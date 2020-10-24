@@ -6,3 +6,4 @@ go/codemirror
 go/css
 go/js
 *java
+server/reports

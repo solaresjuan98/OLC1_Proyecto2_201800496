@@ -29,6 +29,10 @@ module.exports = class Parser {
         )
     }
 
+    returnTokenList(){
+        return this.tokenList;
+    }
+
     parse() {
 
         index = 0;

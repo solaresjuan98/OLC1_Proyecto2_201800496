@@ -769,8 +769,11 @@ module.exports = class Scanner {
     }
 
     ReturnLexErrors() {
+        
+        return errorList;
+        /*
         errorList.forEach(element => {
             console.log("type: " + element.type, " --- value: " + element.value + " --- row: " + element.row + " --- column: " + row.column);
-        })
+        })*/
     }
 }
