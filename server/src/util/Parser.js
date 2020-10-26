@@ -1,12 +1,15 @@
 
 var Token = require('./Token');
 var fs = require('fs');
+const { Console } = require('console');
 
 var tokenActual;
 var index;
 var sintaxError = false;
 var tab = 0;
 var python = "";
+var sintaxErrorList = [];
+var consoleInformation = "";
 
 module.exports = class Parser {
 
@@ -15,7 +18,9 @@ module.exports = class Parser {
 
         var row = 1;
         var column = 1;
+        sintaxErrorList = [];
         sintaxError = false;
+        consoleInformation = "";
         python = "";
         tab = 0;
         //this.value = value;
@@ -29,7 +34,7 @@ module.exports = class Parser {
         )
     }
 
-    returnTokenList(){
+    returnTokenList() {
         return this.tokenList;
     }
 
@@ -79,7 +84,7 @@ module.exports = class Parser {
         }
         else {
             console.log('Error with ' + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -115,7 +120,7 @@ module.exports = class Parser {
         else {
             //error
             console.log("Error with " + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -165,6 +170,7 @@ module.exports = class Parser {
             update 
         
         */
+        console.log("CLASS -- "+tokenActual.value);
         if (tokenActual.type === 'class') {
             python += "class ";
             this.Match();
@@ -177,7 +183,7 @@ module.exports = class Parser {
         }
         else {
             console.log('class was expected instead of ' + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -189,7 +195,7 @@ module.exports = class Parser {
             DEF_CLASS -> TYPE DECLARATION DEF_CLASS
                        | public METHOD
         */
-        console.log('DEF CLASS -> ' + tokenActual.value)
+        console.log('DEF CLASS -- ' + tokenActual.value)
         if (tokenActual.type === 'int' || tokenActual.type === 'String' || tokenActual.type === 'char' || tokenActual.type === 'boolean' || tokenActual.type === 'double') {
             this.DECLARATION();
             this.DEF_CLASS();
@@ -198,8 +204,21 @@ module.exports = class Parser {
             this.Public_m();
             this.METHOD();
             this.DEF_CLASS();
-        } else {
+        } else if (tokenActual.type === 'single line commentary') {
 
+            this.SL_Comment();
+            this.DEF_CLASS();
+        } else if (tokenActual.type === 'multiline commentary ') {
+            this.ML_Comment();
+            this.DEF_CLASS();
+        }
+        else if(tokenActual.type === 'return'){
+            this.Return();
+            this.RETURN_STATEMENT();
+            this.Semicolon();
+        }
+        else {
+            console.log("weno -> " +tokenActual.value);
         }
 
 
@@ -247,15 +266,15 @@ module.exports = class Parser {
         /*
             LIST_DECLARATIONS -> public TYPE id LIST_CMETHOD_P
         */
-        
-        console.log("LIST_DECLARATIONS --> " + tokenActual.value );
+
+        console.log("LIST_DECLARATIONS --> " + tokenActual.value);
         if (tokenActual.type === 'public') {
             this.Public_m();
             this.TYPE();
             python += this.GenTab(tab);
             this.Identifier();
             this.LIST_PARAM();
-            
+
         } else if (tokenActual.type === 'single line commentary') {
             this.SL_Comment();
             this.LIST_DECLARATIONS();
@@ -273,7 +292,7 @@ module.exports = class Parser {
         /*
             LIST_DECLARATIONS_P -> public TYPE id PARAMETERS LIST_DECLARATIONS_P
         */
-       console.log("LIST_DECLARATIONS_P --> " + tokenActual.value);
+        console.log("LIST_DECLARATIONS_P --> " + tokenActual.value);
         if (tokenActual.type === 'public') {
             this.Public_m();
             this.TYPE();
@@ -290,7 +309,7 @@ module.exports = class Parser {
             this.ML_Comment();
             this.LIST_DECLARATIONS_P();
         }
-        
+
     }
 
     LIST_PARAM() {
@@ -303,7 +322,7 @@ module.exports = class Parser {
         }
         else {
             console.log("Left parethesis was expected intead of " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -325,7 +344,7 @@ module.exports = class Parser {
         else {
 
             console.log("Error with " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -377,7 +396,7 @@ module.exports = class Parser {
         }
         else {
             console.log("Left parethesis was expected intead of " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -406,7 +425,7 @@ module.exports = class Parser {
         else {
 
             console.log("Error with " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -532,7 +551,7 @@ module.exports = class Parser {
         }
         else {
             console.log("Error with " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -615,7 +634,7 @@ module.exports = class Parser {
         }
         else {
             console.log("Error with " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -639,7 +658,7 @@ module.exports = class Parser {
         }
         else {
             console.log("Error with " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -686,7 +705,7 @@ module.exports = class Parser {
         else {
 
             console.log("Value was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -721,7 +740,7 @@ module.exports = class Parser {
         }
         else {
             console.log('Error with ' + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -744,7 +763,7 @@ module.exports = class Parser {
         }
         else {
             console.log('Error with ' + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -760,7 +779,7 @@ module.exports = class Parser {
         }
         else {
             console.log("A parameter value was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -779,7 +798,7 @@ module.exports = class Parser {
         }
         else {
             console.log("System was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -811,7 +830,7 @@ module.exports = class Parser {
         }
         else {
             console.log("Error with " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -824,7 +843,7 @@ module.exports = class Parser {
                   | EXPRESSION
                   |  id
         */
-       console.log('DATA --' + tokenActual.type);
+        console.log('DATA --' + tokenActual.type);
         if (tokenActual.type === 'text string') {
             this.Text_String();
 
@@ -833,7 +852,7 @@ module.exports = class Parser {
         }
         else {
             console.log("Error with -- " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -859,7 +878,7 @@ module.exports = class Parser {
         }
         else {
             console.log('do was expexted instead ' + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -882,7 +901,7 @@ module.exports = class Parser {
         }
         else {
             console.log('while was expexted instead ' + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -915,7 +934,7 @@ module.exports = class Parser {
         }
         else {
             console.log("For was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -941,7 +960,7 @@ module.exports = class Parser {
         }
         else {
             console.log('If was expected instead of ' + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -967,7 +986,7 @@ module.exports = class Parser {
         }
         else {
             console.log('If was expected instead of ' + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -995,17 +1014,33 @@ module.exports = class Parser {
             this.EXPR();
             this.Semicolon_f();
             this.Identifier_f();
-            this.Plus_f();
-            this.Plus_f();
+            this.INC_OR_DEC();
             python += "):\n";
         }
 
         else {
             console.log('int was expected instead ' + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
         }
     }
 
+    INC_OR_DEC() {
+
+        if (tokenActual.type === "plus") {
+            this.Plus_f();
+            this.Plus_f();
+        }
+        else if (tokenActual.type === "minus") {
+            this.Minus_f();
+            this.Minus_f();
+
+        } else {
+            console.log("'+' or '-' was expected instead of " + tokenActual.value);
+            sintaxError = true;
+            this.addSintaxError(tokenActual);
+            this.Match();
+        }
+    }
 
     CLAUSE() {
 
@@ -1026,7 +1061,7 @@ module.exports = class Parser {
         }
         else {
             console.log('If was expected instead of ' + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1055,8 +1090,7 @@ module.exports = class Parser {
         else if (tokenActual.type === 'less or equal than') {
 
             this.Less_or_equal_than();
-            //this.Less_than();
-            //this.REL_P();
+
         } else if (tokenActual.type === 'assignation') {
             this.Assignation();
             this.REL_P();
@@ -1206,7 +1240,7 @@ module.exports = class Parser {
         }
         else {
             console.log('Error with ' + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1297,7 +1331,7 @@ module.exports = class Parser {
         }
         else {
             console.log('Error with ' + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -1310,6 +1344,7 @@ module.exports = class Parser {
          *                   | text_string 
          * 
          */
+        console.log("RETURN STATEMENT ->" + tokenActual.value)
         if (tokenActual.type === 'Left parenthesis' || tokenActual.type === 'number' || tokenActual.type === 'Identifier') {
             this.EXPR();
         }
@@ -1336,8 +1371,8 @@ module.exports = class Parser {
             this.LISTP();
         }
         else {
-            console.log("public was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("public was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
 
         }
@@ -1353,8 +1388,8 @@ module.exports = class Parser {
             //this.LISTP();
         }
         else {
-            console.log("public was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("public was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
 
         }
@@ -1368,8 +1403,8 @@ module.exports = class Parser {
             //this.Void();
         }
         else {
-            console.log("static was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("static was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1382,8 +1417,8 @@ module.exports = class Parser {
             //this.Main();
         }
         else {
-            console.log("void was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("void was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1396,8 +1431,8 @@ module.exports = class Parser {
             //this.Left_p_();
         }
         else {
-            console.log("main was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("main was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
 
         }
@@ -1411,8 +1446,8 @@ module.exports = class Parser {
             this.String_p();
         }
         else {
-            console.log("'(' was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("'(' was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
 
         }
@@ -1426,8 +1461,8 @@ module.exports = class Parser {
             //this.Left_b_();
         }
         else {
-            console.log("String was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("String was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1440,8 +1475,8 @@ module.exports = class Parser {
             //this.Right_b_();
         }
         else {
-            console.log("'[' was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("'[' was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
 
         }
@@ -1455,8 +1490,8 @@ module.exports = class Parser {
             //this.Args();
         }
         else {
-            console.log("']' was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("']' was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1470,8 +1505,8 @@ module.exports = class Parser {
             //this.Right_p_();
         }
         else {
-            console.log("args was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("args was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1489,8 +1524,8 @@ module.exports = class Parser {
 
         }
         else {
-            console.log("')' was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("')' was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
 
         }
@@ -1506,8 +1541,8 @@ module.exports = class Parser {
 
         }
         else {
-            console.log("'{' was expected but " + tokenActual.type);
-            sintaxError = true;
+            console.log("'{' was expected instead of " + tokenActual.type);
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1522,7 +1557,7 @@ module.exports = class Parser {
         }
         else {
             console.log('An Identifier was expected instead of ' + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1538,7 +1573,7 @@ module.exports = class Parser {
         }
         else {
             console.log('An Identifier was expected instead of ' + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1552,7 +1587,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'=' was expected instead of " + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1565,7 +1600,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'=' was expected instead of " + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1579,7 +1614,7 @@ module.exports = class Parser {
         }
         else {
             console.log("number was expected instead of " + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1594,7 +1629,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'{' was expected instead of " + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1607,7 +1642,7 @@ module.exports = class Parser {
         }
         else {
             console.log("';' was expected instead of " + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1620,7 +1655,7 @@ module.exports = class Parser {
         }
         else {
             console.log("';' was expected instead of " + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1635,7 +1670,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'}' was expected instead  " + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1650,7 +1685,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'interface' was expected, but " + tokenActual.type);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -1666,7 +1701,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'(' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1681,7 +1716,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'(' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1697,7 +1732,7 @@ module.exports = class Parser {
         }
         else {
             console.log("')' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1714,7 +1749,7 @@ module.exports = class Parser {
         }
         else {
             console.log("')' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1729,7 +1764,7 @@ module.exports = class Parser {
         }
         else {
             console.log("',' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1741,7 +1776,7 @@ module.exports = class Parser {
         }
         else {
             console.log("system was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1753,7 +1788,7 @@ module.exports = class Parser {
         }
         else {
             console.log("out was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1765,7 +1800,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'.' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1778,7 +1813,7 @@ module.exports = class Parser {
         }
         else {
             console.log("print was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1794,7 +1829,7 @@ module.exports = class Parser {
         }
         else {
             console.log("print was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1812,7 +1847,7 @@ module.exports = class Parser {
         }
         else {
             console.log("text string was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1826,7 +1861,7 @@ module.exports = class Parser {
         }
         else {
             console.log("if was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1839,7 +1874,7 @@ module.exports = class Parser {
         }
         else {
             console.log("else was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1853,7 +1888,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'*' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1866,7 +1901,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'/' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1880,7 +1915,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'+' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1893,7 +1928,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'+' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1906,10 +1941,24 @@ module.exports = class Parser {
         }
         else {
             console.log("'-' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
+
+    Minus_f() {
+        if (tokenActual.type === 'minus') {
+            // translate
+            //python += tokenActual.value;
+            this.Match();
+        }
+        else {
+            console.log("'-' was expected instead " + tokenActual.value);
+            sintaxError = true; this.addSintaxError(tokenActual);
+            this.Match();
+        }
+    }
+
 
     Less_than() {
         if (tokenActual.type === 'less than') {
@@ -1919,7 +1968,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'<' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1932,7 +1981,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'<' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1945,7 +1994,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'>' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1958,7 +2007,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'>' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1968,7 +2017,7 @@ module.exports = class Parser {
         }
         else {
             console.log("do was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1981,7 +2030,7 @@ module.exports = class Parser {
         }
         else {
             console.log("while was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1994,7 +2043,7 @@ module.exports = class Parser {
         }
         else {
             console.log("while was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -2008,7 +2057,7 @@ module.exports = class Parser {
         }
         else {
             console.log("for was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -2021,7 +2070,7 @@ module.exports = class Parser {
         }
         else {
             console.log("break was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -2034,7 +2083,7 @@ module.exports = class Parser {
         }
         else {
             console.log("continue was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -2047,7 +2096,7 @@ module.exports = class Parser {
         }
         else {
             console.log("return was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -2058,7 +2107,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'|' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -2069,7 +2118,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'^' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -2083,7 +2132,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'&' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -2091,12 +2140,13 @@ module.exports = class Parser {
     Not() {
         if (tokenActual.type === 'not') {
             // translate
-            python += tokenActual.value;
+            python += "!=";
+            //python += tokenActual.value;
             this.Match();
         }
         else {
             console.log("'!' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -2109,7 +2159,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'true' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -2122,7 +2172,7 @@ module.exports = class Parser {
         }
         else {
             console.log("'false' was expected instead " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -2137,7 +2187,7 @@ module.exports = class Parser {
         }
         else {
             //console.log("'!' was expected instead " + tokenActual.value);
-            //sintaxError = true;
+            //sintaxError = true; this.addSintaxError(tokenActual);
             //this.Match();
         }
 
@@ -2164,7 +2214,7 @@ module.exports = class Parser {
         }
         else {
             console.log("A data type was expected instead of " + tokenActual.value);
-            sintaxError = true;
+            sintaxError = true; this.addSintaxError(tokenActual);
             this.Match();
         }
 
@@ -2233,12 +2283,6 @@ module.exports = class Parser {
                     //index--;
                     break;
                 }
-                else if (tokenActual.type === undefined) {
-                    console.log('End of file xjd ------------------');
-                    sintaxError = false;
-                    //index--;
-                    break;
-                }
             }
         } else {
             index++;
@@ -2254,6 +2298,8 @@ module.exports = class Parser {
 
 
     WriteFile() {
+
+        //console.log(python);
         fs.writeFile('result/prueba.py', python, function (err) {
             if (err) {
                 return console.log(err);
@@ -2271,5 +2317,16 @@ module.exports = class Parser {
         }
 
         return tab;
+    }
+
+    addSintaxError(tokenActual) {
+        consoleInformation += " Sintax error with [" + tokenActual.value + "] on row: " + tokenActual.row + " and column: " + tokenActual.column + "\n";
+        //console.log(" Sintax error with ["+ tokenActual.value +"] on row: " +tokenActual.row+" and column: " +tokenActual.column );
+    }
+
+
+    returnConsoleReport() {
+
+        return consoleInformation;
     }
 }

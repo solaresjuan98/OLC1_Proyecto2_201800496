@@ -14,6 +14,10 @@ const tokens_ = JSON.parse(tokens);
 const lexerrors = fs.readFileSync('reports/lexerrors.json', 'utf-8');
 const lexerrors_ = JSON.parse(lexerrors);
 
+// read file that contains the console information
+const info = fs.readFileSync('reports/info.json', 'utf-8');
+const info_ = JSON.parse(info);
+
 
 router.get('/test', (req, res) => {
     //res.send({"Entry": "text entry"});
@@ -52,14 +56,21 @@ router.post("/send", (req, res) => {
 
         // parser 
         var parser = new Parser(scanner.tokenList);
-        //parser.getTokens();
+
         var tk_list = parser.returnTokenList();
+        parser.parse();
+        parser.WriteFile();
 
         fs.writeFileSync('reports/tokenlist.json', "", 'utf-8');
         // writing on the JSON file
         fs.writeFileSync('reports/tokenlist.json', JSON.stringify(tk_list), 'utf-8');
-        //parser.parse();
-        //parser.WriteFile();
+
+        var info = {
+            "info": parser.returnConsoleReport()
+        }
+
+        fs.writeFileSync('reports/info.json', JSON.stringify(info), 'utf-8');
+
         res.status(200);
         res.end();
 
@@ -77,17 +88,21 @@ router.post("/data", (req, res) => {
     res.json(req.body);
 })
 
-
 router.get("/tokensreport", (req, res) => {
 
     res.json(tokens_);
 
 })
 
-
 router.get("/lexerrors", (req, res) => {
 
     res.json(lexerrors_);
+})
+
+router.get("/info", (req, res) => {
+
+    res.json(info_);
+
 })
 
 module.exports = router;

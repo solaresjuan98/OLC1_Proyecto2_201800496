@@ -4,6 +4,10 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" type="text/css" href="css/index.css" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
     <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 
     <script src="./codemirror/lib/codemirror.js"></script>
@@ -14,6 +18,28 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+
+
+        <div class="collapse navbar-collapse" id="navbarColor01">
+
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Proyecto 2 Curso Compiladores 1
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="../tokens">Ver tokens
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+    </nav>
+
+
     <div class="contenedor">
         <input id="fileInput" title="Abrir" type="file" size="50" onchange="AbrirArchivo(this.files)" class="btnp">
         <button onclick="DescargarArchivo();" id="guardar" title="Guardar" class="btnp">Guardar</button>
@@ -35,14 +61,21 @@
         </body>
 
         <div>
-            <h3>JAVASCRIPT</h3>
-            <textarea rows="20" cols="70" readonly>Info de jison</textarea>
+            <h3 class="subtitle">Javascript</h3>
+            <textarea rows="15" cols="100" readonly>Info de jison</textarea>
             </br>
-            <h3>PYTHON</h3>
-            <textarea rows="20" cols="70" readonly>Info de python</textarea>
+            <h3 class="subtitle">Python</h3>
+            <textarea rows="15" cols="100" readonly>  </textarea>
+            <h3 class="subtitle">Errores</h3>
 
+            <table id="errors">
+
+            </table>
         </div>
+
     </div>
+
+
 </body>
 <script type="text/javascript" src="js/index.js"></script>
 

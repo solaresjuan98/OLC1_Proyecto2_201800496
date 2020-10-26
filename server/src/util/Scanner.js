@@ -105,6 +105,7 @@ module.exports = class Scanner {
 
         for (let i = 0; i < source_code.length; i++) {
             current_char = source_code.charAt(i);
+            //console.log(current_char);
             /*
                 Aceptation states:
                     - 
@@ -258,6 +259,7 @@ module.exports = class Scanner {
                     }
                     else if (current_char === "/") {
                         auxiliar += current_char;
+                        console.log("EFE");
                         column++;
                         tokenList.push(new Token(TokenType.SLASH, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
@@ -305,7 +307,14 @@ module.exports = class Scanner {
                         //auxiliar += current_char;
                         column++;
                         state = 3;
-                    }
+                    }/*else if(current_char === " "){
+                        column++;
+                        //console.log("/");
+                        tokenList.push(new Token(TokenType.SLASH, "/", row, column -1));
+                        //i--;
+                        auxiliar = "";
+                        state = 0;
+                    }*/
 
                     break;
 
@@ -449,12 +458,21 @@ module.exports = class Scanner {
                         auxiliar += current_char;
                         state = 8;
                     }
+                    else if(current_char === "/"){
+                        column++;
+                        tokenList.push(new Token(TokenType.NUMBER, auxiliar, row, column - auxiliar.length));
+                        tokenList.push(new Token(TokenType.SLASH, "/", row, column - auxiliar.length));
+                        auxiliar = "";
+                        console.log("/ xXDxd");
+                    }
                     else {
 
                         tokenList.push(new Token(TokenType.NUMBER, auxiliar, row, column - auxiliar.length));
                         auxiliar = ""
                         state = 0;
                         i--;
+
+                        
                     }
 
                     break;
