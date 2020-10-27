@@ -2,7 +2,11 @@ const { Router, response } = require('express')
 const router = Router();
 var Scanner = require('../util/Scanner');
 var Parser = require('../util/Parser');
+
 const fs = require('fs');
+const https = require('https');
+const path = require('path');
+
 var list = [];
 
 
@@ -17,6 +21,9 @@ const lexerrors_ = JSON.parse(lexerrors);
 // read file that contains the console information
 const info = fs.readFileSync('reports/info.json', 'utf-8');
 const info_ = JSON.parse(info);
+
+var python = fs.readFileSync('result/prueba.py', 'utf-8');
+
 
 
 router.get('/test', (req, res) => {
@@ -59,6 +66,7 @@ router.post("/send", (req, res) => {
 
         var tk_list = parser.returnTokenList();
         parser.parse();
+        //traduction = parser.returnTraductionString();
         parser.WriteFile();
 
         fs.writeFileSync('reports/tokenlist.json', "", 'utf-8');
@@ -103,6 +111,12 @@ router.get("/info", (req, res) => {
 
     res.json(info_);
 
+})
+
+router.get('/download', async (req, res) => {
+    res.status(200)
+        .attachment(`traduction.py`)
+        .send(python)
 })
 
 module.exports = router;

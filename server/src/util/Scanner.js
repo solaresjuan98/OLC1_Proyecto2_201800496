@@ -489,6 +489,7 @@ module.exports = class Scanner {
                         tokenList.push(new Token(TokenType.NUMBER, auxiliar, row, column - auxiliar.length));
                         auxiliar = "";
                         state = 0;
+                        i--;
 
                     }
 

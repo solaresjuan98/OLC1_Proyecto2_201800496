@@ -170,7 +170,7 @@ module.exports = class Parser {
             update 
         
         */
-        console.log("CLASS -- "+tokenActual.value);
+        console.log("CLASS -- " + tokenActual.value);
         if (tokenActual.type === 'class') {
             python += "class ";
             this.Match();
@@ -212,13 +212,13 @@ module.exports = class Parser {
             this.ML_Comment();
             this.DEF_CLASS();
         }
-        else if(tokenActual.type === 'return'){
+        else if (tokenActual.type === 'return') {
             this.Return();
             this.RETURN_STATEMENT();
             this.Semicolon();
         }
         else {
-            console.log("weno -> " +tokenActual.value);
+            console.log("weno -> " + tokenActual.value);
         }
 
 
@@ -523,9 +523,11 @@ module.exports = class Parser {
         else if (tokenActual.type === 'eof') {
 
             console.log('End of file');
-        } else {
+        }/* else if(tokenActual.type === 'Right brace'){
+            this.Right_brace();
 
-        }
+            console.log("DD:");
+        } */
 
     }
 
@@ -566,10 +568,9 @@ module.exports = class Parser {
          * DECLARATION -> TYPE id DECLARATION_P
          *              
         */
-        console.log('DECLARATION');
+        console.log('DECLARATION -- ' +tokenActual.value);
 
         this.TYPE();
-        console.log("fdff" + tab);
         python += this.GenTab(tab);
         this.Identifier();
         this.DECLARATION_P();
@@ -897,6 +898,7 @@ module.exports = class Parser {
             this.Left_brace();
             this.INSTRUCTIONS();
             this.Right_brace();
+            this.INSTRUCTIONS();
 
         }
         else {
@@ -921,20 +923,13 @@ module.exports = class Parser {
             this.Left_brace();
             this.INSTRUCTIONS();
             this.Right_brace();
-
-            // cambiar parentesis por parentesis solo para for 
-            /*this.Left_parenthesis();
-            this.DEC_FOR();
-            this.Right_parenthesis();
-            this.Left_brace();
             this.INSTRUCTIONS();
-            this.Right_brace();*/
-
 
         }
         else {
             console.log("For was expected instead " + tokenActual.value);
-            sintaxError = true; this.addSintaxError(tokenActual);
+            sintaxError = true;
+            this.addSintaxError(tokenActual);
             this.Match();
         }
     }
@@ -1000,7 +995,6 @@ module.exports = class Parser {
         console.log("DEC_FOR -- " + tokenActual.value);
         if (tokenActual.type === 'int') {
 
-
             this.TYPE();
             this.Identifier();
             python += " in range ";
@@ -1020,7 +1014,9 @@ module.exports = class Parser {
 
         else {
             console.log('int was expected instead ' + tokenActual.value);
-            sintaxError = true; this.addSintaxError(tokenActual);
+            sintaxError = true;
+            this.addSintaxError(tokenActual);
+            this.Match();
         }
     }
 
@@ -1091,7 +1087,12 @@ module.exports = class Parser {
 
             this.Less_or_equal_than();
 
-        } else if (tokenActual.type === 'assignation') {
+        } else if (tokenActual.type === 'not') {
+
+            this.Not();
+
+        }
+        else if (tokenActual.type === 'assignation') {
             this.Assignation();
             this.REL_P();
         }
@@ -1192,6 +1193,7 @@ module.exports = class Parser {
         if (tokenActual.type === 'else') {
             this.Else();
             this.THEN_P();
+            this.INSTRUCTIONS();
         }
         else {
             this.INSTRUCTIONS();
@@ -2214,13 +2216,14 @@ module.exports = class Parser {
         }
         else {
             console.log("A data type was expected instead of " + tokenActual.value);
-            sintaxError = true; this.addSintaxError(tokenActual);
+            sintaxError = true; 
+            this.addSintaxError(tokenActual);
             this.Match();
         }
 
     }
 
-    
+
     /*
     ***************
     */
@@ -2265,7 +2268,6 @@ module.exports = class Parser {
                         break;
                     }
 
-
                 }
                 else if (tokenActual.type === 'public') {
                     console.log("'public' found");
@@ -2306,6 +2308,11 @@ module.exports = class Parser {
                 return console.log(err);
             }
         })
+    }
+
+    returnTraductionString(){
+
+        return python;
     }
 
     GenTab(n) {
