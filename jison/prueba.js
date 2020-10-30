@@ -1,9 +1,13 @@
 var fs = require('fs'); 
 var parser = require('./grammar');
-//var arbol = require('./recorrido_arbol')
+var Tree = require('./TraverseTree');
 
 
-fs.readFile('./entrada2.java', (err, data) => {
+fs.readFile('./entrada.java', (err, data) => {
     if (err) throw err;
-    parser.parse(data.toString());
+
+    //parser.parse(data.toString());
+    var root = new Tree();
+    console.log(root.traverse_gv(parser.parse(data.toString())));
+
 });

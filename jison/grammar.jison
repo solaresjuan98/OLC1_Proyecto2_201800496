@@ -1,6 +1,9 @@
+/** imports **/
+%{
+    const Node = require('./TreeNode');
+%}
 
-
-/**************************************************/
+/*********************** lex ***************************/
 %lex 
 %options case-sensitive
 %%
@@ -98,13 +101,24 @@
 
 /lex
 
-/* Sintax */
+/* parser */
+
+%left token_plus token_minus 
+%left token_asterisk token_slash
+%left token_left_parenthesis token_right_parenthesis
+//%left unarios
+
 %start S 
 %%
 
-S: LIST EOF ;
+S: LIST EOF {
+              $$ = new Node("LIST", "");
+              $$.addChild($1);
+              return $$;
 
-LIST: CLASSLIST 
+            };
+
+LIST: CLASSLIST {$$ = new Node("CLASSLIST"); $$.addChild($1); }
     | INTERFACELIST  
     | MAIN_METHOD
     | EOF ;
@@ -118,10 +132,17 @@ MAIN_METHOD: token_public token_static token_void token_main token_left_parenthe
 /*------------------*/
 /* classes */
 
-CLASSLIST: CLASSLIST CLASS
-         | CLASS ;
+CLASSLIST: CLASSLIST CLASS {
+                             $$ = new Node("CLASSLIST", ""); 
+                             $$.addChild($1);  
+                             $$.addChild($2);  
+                           }
+         | CLASS {
+                    $$ = new Node("CLASSLIST", "");
+                    $$.addChild($1);
+                 };
 
-CLASS: token_public token_class token_Identifier token_left_brace METHOD_LIST token_right_brace  
+CLASS: token_public token_class token_Identifier token_left_brace METHOD_LIST token_right_brace  { $$ = new Node("CLASS_DEF", "CLASS_DEF"); $$.addChild(new Node($3, "id")); $$.addChild($5); }
     | error token_right_brace {console.log(" (CLASS) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 /*------------------*/
@@ -135,65 +156,199 @@ INTERFACE: token_public token_interface token_Identifier token_left_brace token_
 
 /*------------------*/
 /* list of methods of a class */
-METHOD_LIST: METHOD_LIST METHOD_IMPLEMENTATION //METHOD_DEF
-           | METHOD_IMPLEMENTATION ;
+METHOD_LIST: METHOD_LIST METHOD_IMPLEMENTATION { 
+                            $$ = new Node("METHOD_LIST", ""); 
+                            $$.addChild($1);
+                            $$.addChild($2);
+                          }//METHOD_DEF
+           | METHOD_IMPLEMENTATION {
+                                    $$ = new Node("M_IMPL", "");
+                                    $$.addChild($1);
+                                    } ;
 
 /* method definition  (change to implementation) */
-METHOD_IMPLEMENTATION: token_public METHOD_DATA_TYPE token_Identifier token_left_parenthesis PARAMETERS_LIST token_right_parenthesis token_left_brace INSTRUCTIONS_LIST token_right_brace
+METHOD_IMPLEMENTATION: token_public METHOD_DATA_TYPE token_Identifier token_left_parenthesis PARAMETERS_LIST token_right_parenthesis token_left_brace INSTRUCTIONS_LIST token_right_brace 
+                     { $$ = new Node("PAR", "");  
+                       $$.addChild($2); 
+                       $$ = new Node($3, "id");  
+                       $$.addChild($5);
+                       $$.addChild($8);
+                       /*put instructions*/
+                     }
          | error token_right_brace {console.log(" (METHOD_DEF) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 
 /* patermeters  */
-PARAMETERS_LIST: PARAMETERS_LIST PARAMETER
-               | PARAMETER                        
+PARAMETERS_LIST: PARAMETERS_LIST PARAMETER { 
+                            $$ = new Node("PAR_LIST", ""); 
+                            $$.addChild($1);
+                            $$.addChild($2);
+                          }
+               | PARAMETER {
+                             $$ = new Node("PARAMETER", "");
+                             $$.addChild($1);
+                            }                        
                | error {console.log(" (PARAMETERS_LIST) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
-PARAMETER: DATA_TYPE token_Identifier
-          | token_comma DATA_TYPE token_Identifier ;
+PARAMETER: DATA_TYPE token_Identifier {
+                                         $$ = new Node("PAR", "");  
+                                         $$.addChild($1);
+                                         $$.addChild(new Node($2, "id"));                      
+                                      }
+          | token_comma DATA_TYPE token_Identifier {
+                                                     $$ = new Node("PAR", "");  
+                                                     $$.addChild($2);
+                                                     $$.addChild(new Node($3, "id"));       
+                                                   } ;
           //| error token_right_brace {console.log(" (PAREMETER) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 /*  instructions */
 
-INSTRUCTIONS_LIST: INSTRUCTIONS_LIST INSTRUCTIONS
-                | INSTRUCTIONS;
+INSTRUCTIONS_LIST: INSTRUCTIONS_LIST INSTRUCTIONS {
+                                    $$ = new Node("INST_LIST", "");  
+                                    $$.addChild($1);
+                                    $$.addChild($2);
+                                    //$$.addChild(new Node($2, "id"));                      
+                                }
+                | INSTRUCTIONS {
+                                    $$ = new Node("INST_LIST", "");  
+                                    $$.addChild($1);
+                                    //$$.addChild(new Node($3, "id"));       
+                                };
 
-INSTRUCTIONS : VAR_DECLARATION 
-             | PRINT_INST 
-             | ASSIGNATION
-             | METHOD_CALL
+INSTRUCTIONS : VAR_DECLARATION { $$ = new Node("VAR_DEC", ""); $$.addChild($1); }
+             | PRINT_INST { $$ = new Node("INST_PRINT", ""); $$.addChild($1);  }
+             | ASSIGNATION { $$ = new Node("ASSIGNATION", ""); $$.addChild($1); }
+             | METHOD_CALL { $$ = new Node("METHOD_CALL", ""); $$.addChild($1); }
              /* if - (else if) else */
-             | RETURN_STATEMENT
+             | RETURN_STATEMENT { $$ = new Node("RETURN", "")}
              | error token_semicolon {console.log(" (INSTRUCTIONS) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 
 PRINT_INST : token_System token_point token_out token_point token_print token_left_parenthesis text_string_qm token_right_parenthesis token_semicolon 
+            {
+                $$ = new Node("print", "print");
+                $$.addChild(new Node($5, "print"));
+                //$$ = new Node("PRINT", "print");
+            }
            | token_System token_point token_out token_point token_println token_left_parenthesis text_string_qm token_right_parenthesis token_semicolon
-           | token_System token_point token_out token_point token_print token_left_parenthesis token_Identifier token_right_parenthesis token_semicolon
-
-           ; //| error {console.log(" (PRINT_INST) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
+           | token_System token_point token_out token_point token_print token_left_parenthesis token_Identifier token_right_parenthesis token_semicolon ; //| error {console.log(" (PRINT_INST) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 
 /* Simple value variable declaration */
-VAR_DECLARATION : DATA_TYPE token_Identifier token_equal token_number token_semicolon 
+VAR_DECLARATION : DATA_TYPE token_Identifier token_equal E token_semicolon 
+                 {
+                     $$.addChild(new Node("Type", "type"));
+                     $$.addChild(new Node($2, "id"));
+                     $$.addChild(new Node($3, "equal"));
+                     $$.addChild($4);
+                 }
                 | DATA_TYPE token_Identifier token_equal token_true token_semicolon
+                {
+                     $$.addChild(new Node("Type", "type"));
+                     $$.addChild(new Node($2, "id"));
+                     $$.addChild(new Node($3, "equal"));
+                     $$.addChild(new Node($4, "true"));
+                 }
+
                 | DATA_TYPE token_Identifier token_equal token_false token_semicolon
+                {
+                     $$.addChild(new Node("Type", "type"));
+                     $$.addChild(new Node($2, "id"));
+                     $$.addChild(new Node($3, "equal"));
+                     $$.addChild(new Node($4, "false"));
+                 }
                 | DATA_TYPE token_Identifier token_equal text_string_qm token_semicolon
+                {
+                     $$.addChild(new Node("Type", "type"));
+                     $$.addChild(new Node($2, "id"));
+                     $$.addChild(new Node($3, "equal"));
+                     $$.addChild(new Node($4, "text_string"));
+                 }
                 | DATA_TYPE token_Identifier token_semicolon
-                | DATA_TYPE token_Identifier token_equal token_number token_comma VAR_LIST  
-                ;//| error {console.log(" (VAR_DECLARATION) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
+                {
+                     $$.addChild(new Node("Type", "type"));
+                     $$.addChild(new Node($2, "id"));
+                     //$$.addChild(new Node($3, "equal"));
+                     //$$.addChild($4);
+                 };
+                //| DATA_TYPE token_Identifier token_equal token_number token_comma VAR_LIST  ;//| error {console.log(" (VAR_DECLARATION) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 /* A list of variables (change token_number -> EXPR) */
-VAR_LIST: token_Identifier token_equal token_number token_comma VAR_LIST
+VAR_LIST: token_Identifier token_equal EXPR token_comma VAR_LIST
         | token_Identifier token_comma VAR_LIST
-        | token_Identifier token_equal token_number  token_semicolon
+        | token_Identifier token_equal EXPR  token_semicolon
         | token_Identifier token_semicolon ;
 
 
 /* an assignation of a variable */
-ASSIGNATION: token_Identifier token_equal token_number token_semicolon ;
+ASSIGNATION: token_Identifier token_equal E token_semicolon 
+            {
+                $$ = new Node("Asgn", "asgn");
+                $$.addChild(new Node("d", "id"));
+                $$.addChild(new Node($2, "equal"));
+                $$.addChild($3);
+
+            };
 
 /* Calling a method*/
 METHOD_CALL: token_Identifier token_left_parenthesis PARAMETER_LIST /* list of parameters */ token_right_parenthesis token_semicolon ;
+
+
+/* Aritmetical expression */
+EXPR_LIST: EXPR EXPR_LIST { 
+                            $$ = new Node("EXPR_LIST", ""); 
+                            $$.addChild($1);
+                            $$.addChild($2);
+                          }
+        | EXPR { 
+                $$ = new Node("EXPR_LIST", "");
+                $$.addChild($1);
+                } ;
+
+EXPR : E /*token_semicolon*/ { 
+                          $$ = new Node("EXPR", "");
+                          $$.addChild(new Node("expression", "expression"));
+                          $$.addChild($1); 
+                            
+                        }
+    ;//| error token_semicolon {console.log(" (EXPR) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
+
+
+E: E token_plus E { 
+                    $$ = new Node("E", ""); 
+                    $$.addChild($1);
+                    $$.addChild(new Node("+", "plus"));
+                    $$.addChild($3);
+                    
+                    }
+                    
+ | E token_minus E { 
+                    $$ = new Node("E", ""); 
+                    $$.addChild($1);
+                    $$.addChild(new Node("-", "min"));
+                    $$.addChild($3);
+                    
+                    }
+ | E token_asterisk E { 
+                    $$ = new Node("E", ""); 
+                    $$.addChild($1);
+                    $$.addChild(new Node("*", "mult"));
+                    $$.addChild($3);
+                    }
+ | E token_slash E {
+                    
+                    $$ = new Node("E", ""); 
+                    $$.addChild($1);
+                    $$.addChild(new Node("/", "div"));
+                    $$.addChild($3);
+                    
+                    }
+ | token_left_parenthesis E token_right_parenthesis {  $$ = new Node("E", ""); $$.addChild($2); }
+ | token_number { $$ = new Node($1, "number"); }
+ | token_Identifier { $$ = new Node($1, "identifier"); }
+ | token_left_parenthesis error token_semicolon {console.log(" Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
+
 
 
 /* list of parameters */
@@ -221,18 +376,18 @@ RETURN_STATEMENT : token_return token_number token_semicolon
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* Data types OF A METHOD */
-METHOD_DATA_TYPE: token_int
-         | token_string
-         | token_void 
-         | token_char
-         | token_double
-         | token_boolean ;
+METHOD_DATA_TYPE: token_int {$$ = new Node("int", "int");}
+         | token_string {$$ = new Node("String", "String");}
+         | token_void {$$ = new Node("void", "void");}
+         | token_char {$$ = new Node("char", "char");}
+         | token_double {$$ = new Node("double", "double");}
+         | token_boolean {$$ = new Node("boolean", "boolean");} ;
          //| error token_right_brace {console.log(" ** Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 
-DATA_TYPE: token_int
-         | token_string
-         | token_double 
-         | token_char 
-         | token_boolean
+DATA_TYPE: token_int {$$ = new Node("int", "int");}
+         | token_string {$$ = new Node("String", "String");}
+         | token_double {$$ = new Node("double", "double");}
+         | token_char {$$ = new Node("char", "char");}
+         | token_boolean {$$ = new Node("boolean", "boolean");}
          ; //| error token_semicolon {console.log(" (DATA_TYPE) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
