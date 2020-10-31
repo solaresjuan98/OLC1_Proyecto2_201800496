@@ -102,7 +102,11 @@
 /lex
 
 /* parser */
-
+%left token_else
+%left or
+%left and
+%left equal_equal different
+%left greater_or_equal_than less_or_equal_than /**/ less_than  greater_than
 %left token_plus token_minus 
 %left token_asterisk token_slash
 %left token_left_parenthesis token_right_parenthesis
@@ -220,19 +224,34 @@ INSTRUCTIONS : VAR_DECLARATION { $$ = new Node("VAR_DEC", ""); $$.addChild($1); 
              | PRINT_INST { $$ = new Node("INST_PRINT", ""); $$.addChild($1);  }
              | ASSIGNATION { $$ = new Node("ASSIGNATION", ""); $$.addChild($1); }
              | METHOD_CALL { $$ = new Node("METHOD_CALL", ""); $$.addChild($1); }
+             | IF { $$ = new Node("IF", ""); $$.addChild($1); }
              /* if - (else if) else */
-             | RETURN_STATEMENT { $$ = new Node("RETURN", "")}
-             | error token_semicolon {console.log(" (INSTRUCTIONS) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
+             | RETURN_STATEMENT { $$ = new Node("RETURN", ""); $$.addChild($1); }
+             | error token_semicolon {
+                 console.log(" (INSTRUCTIONS) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");
+                  $$ = new Node($1, "error");
+                 } ;
 
 
 PRINT_INST : token_System token_point token_out token_point token_print token_left_parenthesis text_string_qm token_right_parenthesis token_semicolon 
             {
-                $$ = new Node("print", "print");
+                $$ = new Node("print", "PRINT_INST");
                 $$.addChild(new Node($5, "print"));
+                $$.addChild(new Node($7, "text_string")); // cambiar
                 //$$ = new Node("PRINT", "print");
             }
            | token_System token_point token_out token_point token_println token_left_parenthesis text_string_qm token_right_parenthesis token_semicolon
-           | token_System token_point token_out token_point token_print token_left_parenthesis token_Identifier token_right_parenthesis token_semicolon ; //| error {console.log(" (PRINT_INST) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
+           {
+                $$ = new Node("print", "PRINT_INST");
+                $$.addChild(new Node($5, "println"));
+                $$.addChild(new Node($7, "text_string")); 
+           }
+           | token_System token_point token_out token_point token_print token_left_parenthesis token_Identifier token_right_parenthesis token_semicolon 
+           {
+                $$ = new Node("print", "PRINT_INST");
+                $$.addChild(new Node($5, "print"));
+                $$.addChild(new Node($7, "id")); 
+           } ; 
 
 
 /* Simple value variable declaration */
@@ -366,13 +385,84 @@ PARAMETER_LIST: token_Identifier token_comma PARAMETER_LIST
               | text_string_sq ;
 
 
-/* return statement  */
-RETURN_STATEMENT : token_return token_number token_semicolon 
+
+/* if */
+IF: token_if token_left_parenthesis  E LOGIC_EXP E token_right_parenthesis token_left_brace INSTRUCTIONS token_right_brace THEN_STMT
+    {
+        $$ = new Node("if stmt", "if");
+        $$.addChild( new Node($2, "("));
+        $$.addChild($3);
+        $$.addChild($4);
+        $$.addChild($5);
+        $$.addChild( new Node($6, ")"));
+        $$.addChild($8);
+        $$.addChild($10);
+
+    };
+
+THEN_LIST: THEN_STMT THEN_LIST 
+         | THEN_STMT ;
+
+/* then_stmt (else else if) */
+THEN_STMT: token_else token_left_brace INSTRUCTIONS token_right_brace
+            {
+                $$ = new Node("else stmt", "else");
+                $$.addChild( new Node($2, "{"));
+                $$.addChild($3);
+                $$.addChild( new Node($4, "}"));
+            }
+         | token_else token_if token_left_parenthesis  E LOGIC_EXP E token_right_parenthesis token_left_brace INSTRUCTIONS token_right_brace THEN_STMT
+         {
+            $$ = new Node("else if stmt", "if");
+            $$.addChild( new Node($1, "else"));
+            $$.addChild( new Node($2, "if"));
+            $$.addChild( new Node($3, "("));
+            $$.addChild($4);
+            $$.addChild($5);
+            $$.addChild($6);
+            $$.addChild( new Node($7, ")"));
+            $$.addChild($9);
+            $$.addChild($11);
+         }
+         |;
+
+/* return statement*/
+RETURN_STATEMENT : token_return token_number token_semicolon
+                 {
+                    $$ = new Node("return", "return"); 
+                    $$.addChild(new Node($2, "number")); 
+
+                 } 
                  | token_return token_Identifier token_semicolon 
+                 {
+                    $$ = new Node("return", "return"); 
+                    $$.addChild(new Node($2, "id")); 
+
+                 }
                  | token_return token_true token_semicolon
+                 {
+                    $$ = new Node("return", "return"); 
+                    $$.addChild(new Node($2, "true")); 
+
+                 }
                  | token_return token_false token_semicolon
+                 {
+                    $$ = new Node("return", "return"); 
+                    $$.addChild(new Node($2, "false")); 
+
+                 }
                  | token_return text_string_qm token_semicolon
-                 | token_return text_string_sq token_semicolon ;
+                 {
+                    $$ = new Node("return", "return"); 
+                    $$.addChild(new Node("text string", "text string")); 
+
+                 }
+                 | token_return text_string_sq token_semicolon
+                 {
+                    $$ = new Node("return", "return"); 
+                    $$.addChild(new Node("text string", "text string")); 
+
+                 } ;
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* Data types OF A METHOD */
@@ -391,3 +481,11 @@ DATA_TYPE: token_int {$$ = new Node("int", "int");}
          | token_char {$$ = new Node("char", "char");}
          | token_boolean {$$ = new Node("boolean", "boolean");}
          ; //| error token_semicolon {console.log(" (DATA_TYPE) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
+
+LOGIC_EXP: or { $$ = new Node($1, "or");}
+         | and {$$ = new Node($1, "and");}
+         | equal_equal {$$ = new Node($1, "equal_equal");} 
+         | greater_or_equal_than {$$ = new Node($1, "greater_or_equal_than");}
+         | greater_than {$$ = new Node($1, "greater_than");}
+         | less_or_equal_than {$$ = new Node($1, "less_or_equal_than");}
+         | less_than {$$ = new Node($1, "less_than");} ;

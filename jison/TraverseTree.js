@@ -1,7 +1,8 @@
 
 
+var fs = require('fs');
 var id_n = 1;
-
+var concat = "";
 
 class TreeTraversal {
 
@@ -29,24 +30,35 @@ class TreeTraversal {
 
     traverse_gv(node){
 
-        //var concat;
+        
 
         if(node.id === 0){
             node.id = id_n;
             id_n++;
         }
         /* id [label=valor fillcolor="#d62728" shape="circle"]*/
-        console.log(node.id + '[label="'+node.value+'" fillcolor="#d62728" shape="circle"];')
+    
+        concat += node.id + '[label="'+node.value+'" fillcolor="#d62728" shape="circle"];\n';
+        //console.log(node.id + '[label="'+node.value+'" fillcolor="#d62728" shape="circle"];')
 
 
         node.child.forEach(element => {
             /* id->id; */
-            console.log(node.id+'->'+id_n+";")
+            //console.log(node.id+'->'+id_n+";")
+            concat += node.id+'->'+id_n+";\n";
             this.traverse_gv(element)
         });
     }
 
+    writefile(){
+        var aux = " digraph G { \n\n";
+        aux += concat;
+        aux += "\n\n}"
+        fs.writeFileSync('graph.txt', aux, 'utf-8');
+    }
+
 }
+
 
 module.exports = TreeTraversal;
 

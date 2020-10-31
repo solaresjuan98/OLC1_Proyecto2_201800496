@@ -8,6 +8,7 @@ fs.readFile('./entrada.java', (err, data) => {
 
     //parser.parse(data.toString());
     var root = new Tree();
+    //parser.parse();
     console.log(root.traverse_gv(parser.parse(data.toString())));
-
+    root.writefile();
 });
