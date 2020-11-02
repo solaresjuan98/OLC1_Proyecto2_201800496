@@ -3,7 +3,7 @@ var parser = require('./grammar');
 var Tree = require('./TraverseTree');
 
 
-fs.readFile('./entrada.java', (err, data) => {
+fs.readFile('./3.java', (err, data) => {
     if (err) throw err;
 
     //parser.parse(data.toString());

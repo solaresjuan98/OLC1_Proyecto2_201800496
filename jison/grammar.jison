@@ -87,7 +87,7 @@
 */
 \"[^"]*\"       %{ return 'text_string_qm'; %}
 \'[^"]*\'       %{ return 'text_string_sq'; %}
-\/\*(\*(?!\/)|[^*])*\*\/\ %{ return 'ml_commentary'; %}
+\/\*(\*(?!\/)|[^*])*\*\/ %{ return 'ml_commentary'; %}
 
 /* Regular expressions */
 ["][a-zA-Z][a-zA-Z0-9_]*[""] %{return 'string';%}
@@ -124,14 +124,35 @@ S: LIST EOF {
 
 LIST: CLASSLIST {$$ = new Node("CLASSLIST"); $$.addChild($1); }
     | INTERFACELIST  
-    | MAIN_METHOD
+    //| MAIN_METHOD
     | EOF ;
 
 
 
 /*------------------*/
 /* main method */
-MAIN_METHOD: token_public token_static token_void token_main token_left_parenthesis token_string token_left_bracket token_right_bracket token_args token_right_parenthesis token_left_brace token_right_brace ;
+MAIN_METHOD: token_public token_static 
+            token_void token_main token_left_parenthesis 
+            token_string token_left_bracket token_right_bracket 
+            token_args token_right_parenthesis token_left_brace INSTRUCTIONS_LIST
+            token_right_brace
+            {
+                $$ = new Node("main method", "");
+                $$.addChild(new Node($1, "public"));
+                $$.addChild(new Node($2, "static"));
+                $$.addChild(new Node($3, "void"));
+                $$.addChild(new Node($4, "main"));
+                $$.addChild(new Node($5, "("));
+                $$.addChild(new Node($6, "String"));
+                $$.addChild(new Node($7, "["));
+                $$.addChild(new Node($8, "]"));
+                $$.addChild(new Node($9, "args"));
+                $$.addChild(new Node($10, ")"));
+                $$.addChild(new Node($11, "{"));
+                $$.addChild($12);
+                $$.addChild(new Node($13, "}"));
+
+            } ;
 
 /*------------------*/
 /* classes */
@@ -179,6 +200,11 @@ METHOD_IMPLEMENTATION: token_public METHOD_DATA_TYPE token_Identifier token_left
                        $$.addChild($8);
                        /*put instructions*/
                      }
+         | MAIN_METHOD {
+
+             $$ = new Node("MAIN_METHOD", "");
+             $$.addChild($1);
+         }
          | error token_right_brace {console.log(" (METHOD_DEF) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 
@@ -225,13 +251,21 @@ INSTRUCTIONS : VAR_DECLARATION { $$ = new Node("VAR_DEC", ""); $$.addChild($1); 
              | ASSIGNATION { $$ = new Node("ASSIGNATION", ""); $$.addChild($1); }
              | METHOD_CALL { $$ = new Node("METHOD_CALL", ""); $$.addChild($1); }
              | IF { $$ = new Node("IF", ""); $$.addChild($1); }
-             /* if - (else if) else */
+             | FOR { $$ = new Node("FOR", ""); $$.addChild($1); }
+             | WHILE { $$ = new Node("WHILE", ""); $$.addChild($1);}
+             | DO_WHILE { $$ = new Node("DO_WHILE", ""); $$.addChild($1);}
              | RETURN_STATEMENT { $$ = new Node("RETURN", ""); $$.addChild($1); }
+             | continue { $$ = new Node("CONTINUE", ""); $$.addChild($1);}
+             | ML_COMMENTARY { $$ = new Node("ML_C", ""); $$.addChild($1); }
              | error token_semicolon {
-                 console.log(" (INSTRUCTIONS) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");
+                  console.log(" (INSTRUCTIONS) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");
                   $$ = new Node($1, "error");
-                 } ;
+              } ;
 
+ML_COMMENTARY: ml_commentary INSTRUCTIONS
+                {
+                    $$ = new Node("ml_comment", ""); $$.addChild(new Node($1, "ml_comment"));
+                };
 
 PRINT_INST : token_System token_point token_out token_point token_print token_left_parenthesis text_string_qm token_right_parenthesis token_semicolon 
             {
@@ -246,11 +280,19 @@ PRINT_INST : token_System token_point token_out token_point token_print token_le
                 $$.addChild(new Node($5, "println"));
                 $$.addChild(new Node($7, "text_string")); 
            }
-           | token_System token_point token_out token_point token_print token_left_parenthesis token_Identifier token_right_parenthesis token_semicolon 
+           | token_System token_point token_out token_point token_print token_left_parenthesis E token_right_parenthesis token_semicolon 
            {
                 $$ = new Node("print", "PRINT_INST");
                 $$.addChild(new Node($5, "print"));
-                $$.addChild(new Node($7, "id")); 
+                $$.addChild($7);
+                //$$.addChild(new Node($7, "id")); 
+           }
+           | token_System token_point token_out token_point token_println token_left_parenthesis E token_right_parenthesis token_semicolon 
+           {
+                $$ = new Node("print", "PRINT_INST");
+                $$.addChild(new Node($5, "println"));
+                $$.addChild($7);
+                //$$.addChild(new Node($7, "id")); 
            } ; 
 
 
@@ -294,9 +336,9 @@ VAR_DECLARATION : DATA_TYPE token_Identifier token_equal E token_semicolon
                 //| DATA_TYPE token_Identifier token_equal token_number token_comma VAR_LIST  ;//| error {console.log(" (VAR_DECLARATION) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 /* A list of variables (change token_number -> EXPR) */
-VAR_LIST: token_Identifier token_equal EXPR token_comma VAR_LIST
+VAR_LIST: token_Identifier token_equal E token_comma VAR_LIST
         | token_Identifier token_comma VAR_LIST
-        | token_Identifier token_equal EXPR  token_semicolon
+        | token_Identifier token_equal E  token_semicolon
         | token_Identifier token_semicolon ;
 
 
@@ -311,7 +353,15 @@ ASSIGNATION: token_Identifier token_equal E token_semicolon
             };
 
 /* Calling a method*/
-METHOD_CALL: token_Identifier token_left_parenthesis PARAMETER_LIST /* list of parameters */ token_right_parenthesis token_semicolon ;
+METHOD_CALL: token_Identifier token_left_parenthesis PARAMETER_LIST /* list of parameters */ token_right_parenthesis token_semicolon
+            {
+                $$ = new Node("method_call", "");
+                $$.addChild(new Node($1, "id"));
+                $$.addChild(new Node($2, "("));
+                $$.addChild($3);
+                $$.addChild(new Node($4, ")"));
+                $$.addChild(new Node($5, ")"));
+            } ;
 
 
 /* Aritmetical expression */
@@ -363,6 +413,54 @@ E: E token_plus E {
                     $$.addChild($3);
                     
                     }
+  | E greater_than E {
+                    
+                    $$ = new Node("E", ""); 
+                    $$.addChild($1);
+                    $$.addChild(new Node($2, ">"));
+                    $$.addChild($3);
+                    
+                    }
+  | E less_than E {
+                    
+                    $$ = new Node("E", ""); 
+                    $$.addChild($1);
+                    $$.addChild(new Node($2, "<"));
+                    $$.addChild($3);
+                    
+                    }  
+  | E greater_or_equal_than E {
+                    
+                    $$ = new Node("E", ""); 
+                    $$.addChild($1);
+                    $$.addChild(new Node($2, ">="));
+                    $$.addChild($3);
+                    
+                    }   
+  | E less_or_equal_than E {
+                    
+                    $$ = new Node("E", ""); 
+                    $$.addChild($1);
+                    $$.addChild(new Node($2, "<="));
+                    $$.addChild($3);
+                    
+                    }
+  | E and E {
+                    
+                    $$ = new Node("E", ""); 
+                    $$.addChild($1);
+                    $$.addChild(new Node($2, "&&"));
+                    $$.addChild($3);
+                    
+                    } 
+  | E or E {
+                    
+                    $$ = new Node("E", ""); 
+                    $$.addChild($1);
+                    $$.addChild(new Node($2, "||"));
+                    $$.addChild($3);
+                    
+            }                                     
  | token_left_parenthesis E token_right_parenthesis {  $$ = new Node("E", ""); $$.addChild($2); }
  | token_number { $$ = new Node($1, "number"); }
  | token_Identifier { $$ = new Node($1, "identifier"); }
@@ -371,32 +469,81 @@ E: E token_plus E {
 
 
 /* list of parameters */
-PARAMETER_LIST: token_Identifier token_comma PARAMETER_LIST
+PARAMETER_LIST: E token_comma PARAMETER_LIST
+                {
+                    $$ = new Node("PARAMETER", "");
+                    $$.addChild($1);
+                    $$.addChild(new Node($2, ","));
+                    $$.addChild($3);
+                }
               | token_true token_comma PARAMETER_LIST
+              {
+                    $$ = new Node("PARAMETER", "");
+                    $$.addChild(new Node($1, "true"));
+                    $$.addChild(new Node($2, ","));
+                    $$.addChild($3);
+              }
               | token_false token_comma PARAMETER_LIST
-              | token_number token_comma PARAMETER_LIST
+              {
+                    $$ = new Node("PARAMETER", "");
+                    $$.addChild(new Node($1, "false"));
+                    $$.addChild(new Node($2, ","));
+                    $$.addChild($3);
+              }
+              //| token_number token_comma PARAMETER_LIST//
               | text_string_qm token_comma PARAMETER_LIST
-              | text_string_sq token_comma PARAMETER_LIST
-              | token_Identifier
-              | token_number 
+              {
+                    $$ = new Node("PARAMETER", "");
+                    $$.addChild(new Node($1, "text_string"));
+                    $$.addChild(new Node($2, ","));
+                    $$.addChild($3);
+              }
+              | text_string_sq token_comma PARAMETER_LIST 
+              {
+                    $$ = new Node("PARAMETER", "");
+                    $$.addChild(new Node($1, "text_string"));
+                    $$.addChild(new Node($2, ","));
+                    $$.addChild($3);
+              }
+              //| token_Identifier//
+              | E 
+              {
+                    $$ = new Node("PARAMETER", "");
+                    $$.addChild($1);
+              }
               | token_true
-              | token_false 
+              {
+                    $$ = new Node("PARAMETER", "");
+                    $$.addChild(new Node($1, "true"));
+              }
+              | token_false
+              {
+                    $$ = new Node("PARAMETER", "");
+                    $$.addChild(new Node($1, "false"));
+              } 
               | text_string_qm
-              | text_string_sq ;
+              {
+                    $$ = new Node("PARAMETER", "");
+                    $$.addChild(new Node($1, "text_string"));
+              }
+              | text_string_sq 
+              {
+                    $$ = new Node("PARAMETER", "");
+                    $$.addChild(new Node($1, "text_string"));
+              };
 
 
 
 /* if */
-IF: token_if token_left_parenthesis  E LOGIC_EXP E token_right_parenthesis token_left_brace INSTRUCTIONS token_right_brace THEN_STMT
+IF: token_if token_left_parenthesis E token_right_parenthesis token_left_brace INSTRUCTIONS_LIST token_right_brace THEN_STMT
     {
         $$ = new Node("if stmt", "if");
-        $$.addChild( new Node($2, "("));
+        $$.addChild(new Node($2, "("));
         $$.addChild($3);
-        $$.addChild($4);
-        $$.addChild($5);
-        $$.addChild( new Node($6, ")"));
+        $$.addChild(new Node($4, ")"));
+        $$.addChild($6);
         $$.addChild($8);
-        $$.addChild($10);
+        
 
     };
 
@@ -404,41 +551,92 @@ THEN_LIST: THEN_STMT THEN_LIST
          | THEN_STMT ;
 
 /* then_stmt (else else if) */
-THEN_STMT: token_else token_left_brace INSTRUCTIONS token_right_brace
+THEN_STMT: token_else token_left_brace INSTRUCTIONS_LIST token_right_brace
             {
                 $$ = new Node("else stmt", "else");
+                $$.addChild( new Node($1, "else"));
                 $$.addChild( new Node($2, "{"));
                 $$.addChild($3);
                 $$.addChild( new Node($4, "}"));
             }
-         | token_else token_if token_left_parenthesis  E LOGIC_EXP E token_right_parenthesis token_left_brace INSTRUCTIONS token_right_brace THEN_STMT
+         | token_else token_if token_left_parenthesis E token_right_parenthesis token_left_brace INSTRUCTIONS_LIST token_right_brace THEN_STMT
          {
             $$ = new Node("else if stmt", "if");
-            $$.addChild( new Node($1, "else"));
-            $$.addChild( new Node($2, "if"));
-            $$.addChild( new Node($3, "("));
+            $$.addChild(new Node($1, "else"));
+            $$.addChild(new Node($2, "if"));
+            $$.addChild(new Node($3, "("));
             $$.addChild($4);
-            $$.addChild($5);
-            $$.addChild($6);
-            $$.addChild( new Node($7, ")"));
+            $$.addChild(new Node($5, ")"));
+            $$.addChild($7);
             $$.addChild($9);
-            $$.addChild($11);
          }
-         |;
+         |{$$ = new Node("", "")};
+
+
+
+
+FOR: token_for token_left_parenthesis FOR_DEF token_right_parenthesis token_left_brace INSTRUCTIONS_LIST token_right_brace
+    {
+        $$ = new Node("for_stmt", "");
+        $$.addChild(new Node($1, "for"));
+        $$.addChild(new Node($2, "("));
+        $$.addChild($3);
+        $$.addChild(new Node($4, ")"));
+        $$.addChild(new Node($5, "{"));
+        $$.addChild($6);
+        $$.addChild(new Node($7, "}"));
+
+    };
+
+FOR_DEF: VAR_DECLARATION E token_semicolon E DEC_INC
+        {
+            $$ = new Node("FOR_DEF", "");
+            $$.addChild($1);
+            $$.addChild($2);
+            $$.addChild(new Node($3, ";"));
+            console.log($4);
+            $$.addChild($4);
+            console.log($5);
+            $$.addChild($5);
+            $$.addChild(new Node($5, "++"));
+        };
+
+DEC_INC: increase { $$ = new Node("DEC_INC", "");  $$.addChild(new Node($1, "++")); }
+       | decrease { $$ = new Node("DEC_INC", ""); $$.addChild(new Node($1, "--")); } ;
+
+WHILE: token_while token_left_parenthesis E token_right_parenthesis token_left_brace INSTRUCTIONS_LIST token_right_brace
+        {
+            $$ = new Node("while_stmt");
+            $$.addChild(new Node($1, "while"));
+            $$.addChild(new Node($2, "("));
+            $$.addChild($3);
+            $$.addChild(new Node($4, ")"));
+            $$.addChild(new Node($5, "{"));
+            $$.addChild($6);
+            $$.addChild(new Node($7, "}"));
+        };
+
+DO_WHILE: token_do token_left_brace INSTRUCTIONS_LIST token_right_brace token_while token_left_parenthesis E token_right_parenthesis token_semicolon 
+        {
+            $$ = new Node("do while_stmt");
+            $$.addChild(new Node($1, "do"));
+            $$.addChild(new Node($2, "{"));
+            $$.addChild($3);
+            $$.addChild(new Node($4, "}"));
+            $$.addChild(new Node($5, "while"));
+            $$.addChild(new Node($6, "("));
+            $$.addChild($7);
+            $$.addChild(new Node($8, ")"));
+            $$.addChild(new Node($9, ";"));
+        };
 
 /* return statement*/
-RETURN_STATEMENT : token_return token_number token_semicolon
+RETURN_STATEMENT : token_return E token_semicolon
                  {
                     $$ = new Node("return", "return"); 
-                    $$.addChild(new Node($2, "number")); 
+                    $$.addChild($2); 
 
                  } 
-                 | token_return token_Identifier token_semicolon 
-                 {
-                    $$ = new Node("return", "return"); 
-                    $$.addChild(new Node($2, "id")); 
-
-                 }
                  | token_return token_true token_semicolon
                  {
                     $$ = new Node("return", "return"); 
@@ -475,6 +673,7 @@ METHOD_DATA_TYPE: token_int {$$ = new Node("int", "int");}
          //| error token_right_brace {console.log(" ** Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 
+
 DATA_TYPE: token_int {$$ = new Node("int", "int");}
          | token_string {$$ = new Node("String", "String");}
          | token_double {$$ = new Node("double", "double");}
@@ -482,10 +681,13 @@ DATA_TYPE: token_int {$$ = new Node("int", "int");}
          | token_boolean {$$ = new Node("boolean", "boolean");}
          ; //| error token_semicolon {console.log(" (DATA_TYPE) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
-LOGIC_EXP: or { $$ = new Node($1, "or");}
+
+
+/*LOGIC_EXP: or { $$ = new Node($1, "or");}
          | and {$$ = new Node($1, "and");}
          | equal_equal {$$ = new Node($1, "equal_equal");} 
          | greater_or_equal_than {$$ = new Node($1, "greater_or_equal_than");}
          | greater_than {$$ = new Node($1, "greater_than");}
          | less_or_equal_than {$$ = new Node($1, "less_or_equal_than");}
          | less_than {$$ = new Node($1, "less_than");} ;
+*/
