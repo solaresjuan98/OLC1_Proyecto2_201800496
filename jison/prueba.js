@@ -6,9 +6,8 @@ var Tree = require('./TraverseTree');
 fs.readFile('./3.java', (err, data) => {
     if (err) throw err;
 
-    //parser.parse(data.toString());
     var root = new Tree();
-    //parser.parse();
-    console.log(root.traverse_gv(parser.parse(data.toString())));
+    root.traverse_gv(parser.parse(data.toString()));
     root.writefile();
+    root.translate();
 });

@@ -17,8 +17,8 @@
     <title>Proyecto2</title>
 </head>
 
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<body style="background-color: rgb(248, 245, 245);">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 
 
         <div class="collapse navbar-collapse" id="navbarColor01">
@@ -41,14 +41,17 @@
 
 
     <div class="contenedor">
-        <input id="fileInput" title="Abrir" type="file" size="50" onchange="AbrirArchivo(this.files)" class="btnp">
-        <button onclick="DescargarArchivo();" id="guardar" title="Guardar" class="btnp">Guardar</button>
-        <button onclick="agregar();" title="AgregarPestana" id="btn4" class="btnp">Agregar Pestana</button>
-        <button onclick="quitar();" title="QuitarPestana" id="btn5" class="btnp">Quitar Pestana</button>
-        <button onclick="AnalizarArchivo();" title="AnalizarArchivo" id="btn6" class="btnp">Analizar</button>
-        <button onclick="LimpiarForm();" title="LimpiarForm" id="btn7" class="btnp">Limpiar</button>
-        <button onclick="descargarTraduccion();" title="descargarTraduccion" id="btn8" class="btnp">Guardar .py</button>
-        <button id="btn5" class="btnp">Guardar .js</button>
+        <input id="fileInput" title="Abrir" type="file" size="50" onchange="AbrirArchivo(this.files)"
+            class="form-control-file">
+        </br>
+        <button onclick="DescargarArchivo();" id="guardar" title="Guardar" class="btn btn-primary">Guardar</button>
+        <button onclick="agregar();" title="AgregarPestana" id="btn4" class="btn btn-primary">Agregar Pestana</button>
+        <button onclick="quitar();" title="QuitarPestana" id="btn5" class="btn btn-danger">Quitar Pestana</button>
+        <button onclick="AnalizarArchivo();" title="AnalizarArchivo" id="btn6" class="btn btn-success">Analizar</button>
+        <button onclick="LimpiarForm();" title="LimpiarForm" id="btn7" class="btn btn-secondary">Limpiar</button>
+        <button onclick="descargarTraduccion();" title="descargarTraduccion" id="btn8" class="btn btn-secondary">Guardar
+            .py</button>
+        <button id="btn5" class="btn btn-secondary">Guardar .js</button>
 
         <div id="pestanas">
             <ul id=lista>
@@ -62,13 +65,13 @@
 
         <div>
             <h3 class="subtitle">Javascript</h3>
-            <textarea rows="15" cols="100" readonly>Info de jison</textarea>
+            <textarea rows="15" cols="100" class="form-control" readonly>Info de jison</textarea>
             </br>
             <h3 class="subtitle">Python</h3>
-            <textarea rows="15" cols="100" readonly>  </textarea>
+            <textarea rows="15" cols="100" class="form-control" readonly>  </textarea>
             <h3 class="subtitle">Errores</h3>
 
-            <table id="errors">
+            <table id="errors" class="table">
 
             </table>
         </div>

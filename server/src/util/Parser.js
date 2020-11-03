@@ -848,8 +848,9 @@ module.exports = class Parser {
         if (tokenActual.type === 'text string') {
             this.Text_String();
 
-        } else if (tokenActual.type === 'Identifier') {
-            this.Identifier();
+        } else if (tokenActual.type === 'Identifier' || tokenActual.value === '(' 
+          || tokenActual.value === ')' || tokenActual.type === 'number') {
+            this.EXPR();
         }
         else {
             console.log("Error with -- " + tokenActual.value);

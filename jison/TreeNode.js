@@ -1,24 +1,36 @@
 
+var tokenValueList = [];
 
-class TreeNode{
+class TreeNode {
 
-    constructor(value, type){
-        this.id = 0; 
+    constructor(value, type) {
+        this.id = 0;
         this.value = value;
         this.type = type;
         this.child = [];
     }
 
-    getValue(){
+    getValue() {
         return this.value;
     }
 
-    getType(){
-        return this.type; 
+    getType() {
+        return this.type;
     }
 
-    addChild(child){
+    addChild(child) {
         this.child.push(child);
+    }
+
+    returnList() {
+        return tokenValueList;
+    }
+
+    translate(str) {
+       
+        //tokenValueList.push(node.value);
+        //console.log(str);
+        //console.log(tokenValueList);
     }
 }
 
