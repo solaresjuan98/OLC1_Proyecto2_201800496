@@ -63,6 +63,7 @@ module.exports = class Parser {
                    
         */
 
+        console.log("LIST -> " + tokenActual.value);
         if (tokenActual.type === 'public') {
             this.Public();
         }
@@ -177,7 +178,7 @@ module.exports = class Parser {
             this.Identifier();
             python += ":\n";
             this.Left_brace();
-            this.DEF_CLASS(); // DEF_CLASS like INSTRUCTIONS()
+            this.DEF_CLASS();
             this.Right_brace();
             this.S();
         }
@@ -218,7 +219,8 @@ module.exports = class Parser {
             this.Semicolon();
         }
         else {
-            console.log("weno -> " + tokenActual.value);
+            //console.log("weno -> " + tokenActual.value);
+            //console.log("bloque vacio");
         }
 
 
@@ -551,6 +553,21 @@ module.exports = class Parser {
             this.ASSIGNATION();
             this.INSTRUCTIONS();
         }
+        else if (tokenActual.value === '+') {
+            
+            this.INC_OR_DEC();
+            python += "+= 1"
+            this.Semicolon();
+            this.INSTRUCTIONS();
+        }
+        else if (tokenActual.value === '-') {
+            
+            this.INC_OR_DEC();
+            python += "-= 1"
+            this.Semicolon();
+            this.INSTRUCTIONS();
+        }
+
         else {
             console.log("Error with " + tokenActual.value);
             sintaxError = true; this.addSintaxError(tokenActual);
@@ -568,7 +585,7 @@ module.exports = class Parser {
          * DECLARATION -> TYPE id DECLARATION_P
          *              
         */
-        console.log('DECLARATION -- ' +tokenActual.value);
+        console.log('DECLARATION -- ' + tokenActual.value);
 
         this.TYPE();
         python += this.GenTab(tab);
@@ -842,15 +859,21 @@ module.exports = class Parser {
         /*
             DATA -> str
                   | EXPRESSION
-                  |  id
+                  |  id (expr)
         */
         console.log('DATA --' + tokenActual.type);
         if (tokenActual.type === 'text string') {
             this.Text_String();
 
-        } else if (tokenActual.type === 'Identifier' || tokenActual.value === '(' 
-          || tokenActual.value === ')' || tokenActual.type === 'number') {
+        } else if (tokenActual.type === 'Identifier' || tokenActual.value === '('
+            || tokenActual.value === ')' || tokenActual.type === 'number') {
             this.EXPR();
+        }
+        else if (tokenActual.type === 'true') {
+            this.True();
+        }
+        else if (tokenActual.type === 'false') {
+            this.False();
         }
         else {
             console.log("Error with -- " + tokenActual.value);
@@ -2217,7 +2240,7 @@ module.exports = class Parser {
         }
         else {
             console.log("A data type was expected instead of " + tokenActual.value);
-            sintaxError = true; 
+            sintaxError = true;
             this.addSintaxError(tokenActual);
             this.Match();
         }
@@ -2258,7 +2281,7 @@ module.exports = class Parser {
                     }
 
                 }
-                else if (tokenActual.type === 'Right brace') {
+                /*else if (tokenActual.type === 'Right brace') {
                     console.log("'}' found");
 
                     if (index < (this.tokenList.length - 1)) {
@@ -2269,24 +2292,24 @@ module.exports = class Parser {
                         break;
                     }
 
-                }
-                else if (tokenActual.type === 'public') {
+                }*/
+                /*else if (tokenActual.type === 'public') {
                     console.log("'public' found");
 
                     if (index < (this.tokenList.length - 1)) {
                         index++;
                         tokenActual = this.tokenList[index];
                         sintaxError = false;
-                        this.LIST();
+                        //this.LIST();
                         break;
                     }
-                }
-                else if (tokenActual.type === 'eof') {
+                }*/
+                /*else if (tokenActual.type === 'eof') {
                     console.log('End of file xdD -------------------');
                     sintaxError = false;
                     //index--;
                     break;
-                }
+                }*/
             }
         } else {
             index++;
@@ -2311,7 +2334,7 @@ module.exports = class Parser {
         })
     }
 
-    returnTraductionString(){
+    returnTraductionString() {
 
         return python;
     }
