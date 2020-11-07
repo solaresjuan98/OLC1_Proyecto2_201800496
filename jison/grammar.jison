@@ -122,10 +122,6 @@ S: LIST EOF {
 
             };
 
-/*
-    LIST: LIST LISTP
-        | LISTP ;
-*/
 
 LIST:  CLASSLIST {$$ = new Node("CLASSLIST", "NON_TERMINAL"); $$.addChild($1); }
      | INTERFACELIST  
@@ -172,7 +168,7 @@ CLASSLIST: CLASSLIST CLASS {
                     $$.addChild($1);
                  };
 
-CLASS: token_public token_class token_Identifier token_left_brace METHOD_LIST token_right_brace 
+CLASS: token_public token_class token_Identifier token_left_brace METHOD_LIST token_right_brace
  { $$ = new Node("CLASS_DEF", "NON_TERMINAL");
    $$.addChild(new Node($2, "class")); 
    $$.addChild(new Node($3, "id")); 
@@ -181,14 +177,31 @@ CLASS: token_public token_class token_Identifier token_left_brace METHOD_LIST to
    $$.addChild(new Node($6, "}"));
 
  }
-| error token_right_brace {console.log(" (CLASS) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
+;//| error token_right_brace {console.log(" (CLASS) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 /*------------------*/
 /* Interfaces */
 INTERFACELIST: INTERFACELIST INTERFACE 
-            | INTERFACE ;
+            {
+                $$ = new Node("INTERFACELIST", "NON_TERMINAL"); 
+                $$.addChild($1);
+                $$.addChild($2); 
+            }
+            | INTERFACE 
+            {
+                $$ = new Node("INTERFACE", "NON_TERMINAL");
+                $$.addChild($1);
+            };
 
-INTERFACE: token_public token_interface token_Identifier token_left_brace token_right_brace 
+INTERFACE: token_public token_interface token_Identifier 
+           token_left_brace token_right_brace
+           {
+               $$ = new Node("INTERFACE", "NON_TERMINAL");
+               $$.addChild(new Node($1, "interface"));
+               $$.addChild(new Node($3, "id_interface"));
+               //$$.addChild(new Node($4, "{_interface"));
+               //$$.addChild(new Node($5, "}_interface"));
+           } 
     | error {console.log(" (INTERFACE) Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;
 
 
@@ -598,7 +611,14 @@ E: E token_plus E {
                     $$.addChild($3);
                     
             }                                     
- | token_left_parenthesis E token_right_parenthesis {  $$ = new Node("E", "NON_TERMINAL"); $$.addChild($2); }
+ | token_left_parenthesis E token_right_parenthesis 
+ {  
+     $$ = new Node("E", "NON_TERMINAL");
+     $$.addChild(new Node($1, "("));
+     $$.addChild($2); 
+     $$.addChild(new Node($3, ")")); 
+     
+ }
  | token_number { $$ = new Node($1, "number"); }
  | token_Identifier { $$ = new Node($1, "identifier"); }
  | token_left_parenthesis error token_semicolon {console.log(" Sintax error [ row: " + this._$.first_line + ", column: " + this._$.first_column +" ] ");} ;

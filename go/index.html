@@ -32,8 +32,22 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="../tokens">Ver tokens
                     </a>
+
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="../ast">Ver AST (jison)
+                    </a>
                 </li>
 
+                <li class="nav-item active">
+                    <a class="nav-link" href="../ast">Ver AST (python)
+                    </a>
+                </li>
+
+                <li class="nav-item active">
+                    <a class="nav-link" href="../info">info (python)
+                    </a>
+                </li>
             </ul>
 
         </div>
@@ -47,12 +61,15 @@
         <button onclick="DescargarArchivo();" id="guardar" title="Guardar" class="btn btn-primary">Guardar</button>
         <button onclick="agregar();" title="AgregarPestana" id="btn4" class="btn btn-primary">Agregar Pestana</button>
         <button onclick="quitar();" title="QuitarPestana" id="btn5" class="btn btn-danger">Quitar Pestana</button>
-        <button onclick="AnalizarArchivo();" title="AnalizarArchivo" id="btn6" class="btn btn-success">Traducir a .py</button>
-        <!--<button  title="AnalizarArchivo" id="btn6" class="btn btn-success">Traducir a .js</button> --->
-        <button onclick="LimpiarForm();" title="LimpiarForm" id="btn7" class="btn btn-secondary">Limpiar</button>
-        <button onclick="descargarTraduccion();" title="descargarTraduccion" id="btn8" class="btn btn-secondary">Guardar.py</button>
-        <button id="btn5" class="btn btn-secondary">Guardar .js</button>
-
+        <button onclick="AnalizarArchivo();" title="AnalizarArchivo" id="btn6" class="btn btn-success">Traducir a
+            .py</button>
+        <button onclick="AnalizarArchivoJS();" title="AnalizarArchivojs" id="btn9" class="btn btn-success">Traducir a
+            .js</button>
+        <button onclick="retornarErroresC();" title="LimpiarForm" id="btn7" class="btn btn-secondary">Errores</button>
+        <button onclick="descargarTraduccion();" title="descargarTraduccion" id="btn8"
+            class="btn btn-info">Guardar.py</button>
+        <button onclick="descargarTraduccionJS();" title="descargarTraduccionJS" id="btn10" class="btn btn-info">Guardar .js</button>
+        </br> </br>
         <div id="pestanas">
             <ul id=lista>
             </ul>
@@ -64,13 +81,14 @@
         </body>
 
         <div>
-            <h3 class="subtitle">Javascript</h3>
-            <textarea rows="15" cols="100" class="form-control" readonly>Info de jison</textarea>
+            <h3 class="subtitle">Consola</h3>
+            <textarea rows="6" id="info" cols="100" class="form-control" readonly></textarea>
             </br>
+            <!---
             <h3 class="subtitle">Python</h3>
             <textarea rows="15" cols="100" class="form-control" readonly>  </textarea>
             <h3 class="subtitle">Errores</h3>
-
+            -->
             <table id="errors" class="table">
 
             </table>

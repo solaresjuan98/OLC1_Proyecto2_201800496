@@ -1,4 +1,4 @@
-const { Router, response } = require('express')
+const { Router, response, json } = require('express')
 const router = Router();
 var Scanner = require('../util/Scanner');
 var Parser = require('../util/Parser');
@@ -25,7 +25,7 @@ const info_ = JSON.parse(info);
 var python = fs.readFileSync('result/prueba.py', 'utf-8');
 
 
-
+// test
 router.get('/test', (req, res) => {
     //res.send({"Entry": "text entry"});
 
@@ -73,6 +73,8 @@ router.post("/send", (req, res) => {
         // writing on the JSON file
         fs.writeFileSync('reports/tokenlist.json', JSON.stringify(tk_list), 'utf-8');
 
+        console.log(parser.returnConsoleReport());
+        
         var info = {
             "info": parser.returnConsoleReport()
         }
@@ -89,6 +91,7 @@ router.post("/send", (req, res) => {
 
 })
 
+// test
 router.post("/data", (req, res) => {
 
     const { data } = req.body;
@@ -118,5 +121,6 @@ router.get('/download', async (req, res) => {
         .attachment(`traduction.py`)
         .send(python)
 })
+
 
 module.exports = router;

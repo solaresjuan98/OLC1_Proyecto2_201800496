@@ -136,7 +136,8 @@ class TreeTraversal {
                 }
                 // ----- NOT TRANSLATED
                 else if (node.value === 'interface' || node.value === 'public' || node.value === 'static'
-                    || node.value === 'args' || node.value === '[' || node.value === 'void' || node.value === ']') {
+                    || node.value === 'args' || node.value === '[' || node.value === 'void' || node.value === ']'
+                    || node.type === 'id_interface' || node.type === '{_interface' || node.type === '}_interface') {
                     //
                 }
                 else {

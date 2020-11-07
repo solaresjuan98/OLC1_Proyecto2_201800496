@@ -54,6 +54,8 @@ func main() {
 	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("js/"))))
 	http.Handle("/codemirror/", http.StripPrefix("/codemirror/", http.FileServer(http.Dir("codemirror/"))))
 
+	http.HandleFunc("/info", getReport)
+	http.HandleFunc("/ast", showAST)
 	http.HandleFunc("/tokens", showFront2)
 	http.HandleFunc("/", showFront)
 	fmt.Println(" Listening on IP:" + ip + " and PORT:" + port)
@@ -121,5 +123,10 @@ func showFront(w http.ResponseWriter, r *http.Request) {
 func showFront2(w http.ResponseWriter, r *http.Request) {
 
 	template, _ := template.ParseFiles("prueba.html")
+	template.Execute(w, "Proyecto")
+}
+
+func showAST(w http.ResponseWriter, r *http.Request) {
+	template, _ := template.ParseFiles("ast.html")
 	template.Execute(w, "Proyecto")
 }
