@@ -72,4 +72,4 @@ La aplicación tiene las siguientes funciones basicas:
 
 * #### Reporte de errores sintácticos
  
- 
+ ![reportes3](images/reportes4.png)
